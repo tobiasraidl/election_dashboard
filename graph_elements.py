@@ -1,10 +1,10 @@
-from graph_creation import query_nodes_with_min_deg
+from graph_creation import query_clusters_by_min_size
 
 # min_deg: number between 100 and 200; all nodes with lower degree are ignored
-def generate_elements(G, min_deg):
+def generate_elements(G, min_size):
     
-    relevant_nodes = query_nodes_with_min_deg(G, min_deg)
-    H = G.subgraph(relevant_nodes).copy()
+    relevant_clusters = query_clusters_by_min_size(G, min_size)
+    H = G.subgraph(relevant_clusters).copy()
     degrees = dict(G.degree())
     
     elements = []
