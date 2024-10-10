@@ -4,7 +4,7 @@ from dash import html, dcc, callback
 from dash.dependencies import Input, Output, State
 import networkx as nx
 from graph_creation import load_data, create_people_graph, create_cluster_graph
-from graph_elements import generate_elements
+from graph_elements import generate_cluster_graph_elements, generate_connection_graph_elements
 import pandas as pd
 import dash_bootstrap_components as dbc
 import yaml
@@ -35,7 +35,7 @@ graph_element = cyto.Cytoscape(
     id='cluster-graph',
     layout={'name': 'cose'},
     style={'width': '100%', 'height': '700px', "border-style": "groove"},
-    elements=generate_elements(config, G_clusters, INITIAL_MIN_CLUSTER_SIZE),
+    elements=generate_cluster_graph_elements(config, G_clusters, INITIAL_MIN_CLUSTER_SIZE),
 )
 
 
@@ -67,7 +67,7 @@ app.layout = dbc.Container(
     [
         dbc.Row(
             [
-                dbc.Col([graph_element], width="8", className="mb-3"),
+                dbc.Col([graph_element, html.Div(id="connection-graph-wrapper")], width="8", className="mb-3"),
                 dbc.Col(
                     [
                         dbc.Row([slider_element], align="center", className="mb-3"),
@@ -78,7 +78,7 @@ app.layout = dbc.Container(
                     className="mb-3"
                 ),
             ], 
-            style={"height": "400px"},
+            # style={"height": "400px"},
             className="mb-4"
         )
     ],
@@ -92,7 +92,7 @@ app.layout = dbc.Container(
     Input("min-cluster-size-slider", "value")
 )
 def update_elements(min_size):
-    return generate_elements(config, G_clusters, min_size)
+    return generate_cluster_graph_elements(config, G_clusters, min_size)
 
 @callback(
     Output("cluster-graph", "layout"),
@@ -130,6 +130,27 @@ def display_node_info(node_data):
                 dcc.Graph(id='party-ratio-plot', figure=fig),
             ]
     return card
+
+@app.callback(
+    Output('connection-graph-wrapper', 'children'),
+    Input('cluster-graph', 'tapEdgeData')
+)
+def display_connection_graph(edgeData):
+    if edgeData is None:
+        return html.P("Click an edge to view a new graph.")
+    
+    return cyto.Cytoscape(
+        id='connection-graph',
+        layout={"name": "cose"},
+        style={'width': '100%', 'height': '700px', "border-style": "groove"},
+        elements = generate_connection_graph_elements(
+            G_people, 
+            edgeData["source"], 
+            G_clusters.nodes[int(edgeData["source"])]["nodes"], 
+            edgeData["target"], 
+            G_clusters.nodes[int(edgeData["target"])]["nodes"]
+        )
+    )
 
 if __name__ == '__main__':
     app.run_server(debug=True)

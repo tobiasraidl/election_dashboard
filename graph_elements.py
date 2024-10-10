@@ -1,10 +1,11 @@
 from graph_creation import query_clusters_by_min_size
+import networkx as nx
 
 # min_deg: number between 100 and 200; all nodes with lower degree are ignored
-def generate_elements(config, G, min_size):
+def generate_cluster_graph_elements(config, G_clusters, min_size):
     
-    relevant_clusters = query_clusters_by_min_size(G, min_size)
-    H = G.subgraph(relevant_clusters).copy()
+    relevant_clusters = query_clusters_by_min_size(G_clusters, min_size)
+    H = G_clusters.subgraph(relevant_clusters).copy()
     
     elements = []
     for node in H.nodes():
@@ -41,6 +42,49 @@ def generate_elements(config, G, min_size):
             }
         })
         
+    return elements
+
+# clusters must be a tuple of size 2
+def generate_connection_graph_elements(G_people, cluster1_id, cluster1_nodes, cluster2_id, cluster2_nodes):
+    elements = [
+        {'data': {'id': f'cluster-{cluster1_id}', 'label': f'Cluster {cluster1_id}'}, 
+         'position': {'x': -1000, 'y': 0}, 
+         'style':{'shape': 'rectangle'}
+        },
+        {'data': {'id': f'cluster-{cluster2_id}', 'label': f'Cluster {cluster2_id}'}, 
+         'position': {'x': 1000, 'y': 0},
+         'style':{'shape': 'rectangle'}
+        },
+    ]
     
+    shortest_paths = []
+    min_distance = float("inf")
+    
+    for node1 in cluster1_nodes:
+        for node2 in cluster2_nodes:
+            try:
+                path = nx.shortest_path(G_people, source=node1, target=node2)
+                # print(path)
+                distance = len(path)
+                if distance == min_distance:
+                    shortest_paths.append(path)
+                elif distance < min_distance:
+                    min_distance = distance
+                    shortest_paths = [path]
+            except nx.NetworkXNoPath:
+                continue
+    
+    for path in shortest_paths:
+        previous_node = None
+        for node in path:
+            elements.append({
+                'data': {'id': node}, 
+            })
+            if previous_node != None:
+                elements.append({'data': {'source': str(previous_node), 'target': str(node)}, 'style': {'width': 1}})
+            previous_node = node
+        # Connect cluster_1 id with all first nodes in path and all last nodes with cluster_2 id
+        elements.append({'data': {'source': f'cluster-{cluster1_id}', 'target': path[0]}, 'style': {'width': 1}})
+        elements.append({'data': {'source': path[-1], 'target': f'cluster-{cluster2_id}'}, 'style': {'width': 1}})
     
     return elements

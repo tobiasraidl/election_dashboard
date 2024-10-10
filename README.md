@@ -1,10 +1,11 @@
 # Network Dashboard
 
-Create clusters as lists of node ids of graph
-Visualise clusters as nodes (size proportional to cluster size)
-Edge between two clusters that are connected (edge width proportional to num of unique paths) 
-Slider that sets the minimum cluster size to be displayed
+[x] Create clusters as lists of node ids of graph  
+[x] Visualise clusters as nodes (size proportional to cluster size)  
+[x] Edge between two clusters that are connected (edge width proportional to num of unique paths)  
+[x] Slider that sets the minimum cluster size to be displayed  
+[ ] Slider that sets the max length of the shortest path between two clusters to make an edg between them (no more any path counts)  
 
-Click on edge ->
+Click on edge ->  
 
-New view. Both adjacent clusters to the clicked edge and the shortest paths between them (max length of path adjustable by another slider)
+[x] New view. Both adjacent clusters to the clicked edge and the shortest paths between them  
