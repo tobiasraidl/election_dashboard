@@ -53,7 +53,7 @@ graph_element = cyto.Cytoscape(
             "selector": "edge",
             "style": {
                 "width": 5,
-                "line-color": "#f0f0f0"
+                "line-color": "#c4c4c4"
             }
         }
     ]
