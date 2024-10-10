@@ -8,6 +8,7 @@ from graph_elements import generate_elements
 import pandas as pd
 import dash_bootstrap_components as dbc
 import yaml
+import plotly.graph_objs as go
 
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
@@ -16,13 +17,11 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 df = load_data('data/multiplatform_hashed_visuals.csv', config)
 MIN_CLUSTER_SIZE = 20
-MAX_CLUSTER_SIZE = 150
+MAX_CLUSTER_SIZE = 50
 CLUSTER_SIZE_SLIDER_STEPS = 5
 INITIAL_MIN_CLUSTER_SIZE = 20
 G_people = create_people_graph(df)
 G_clusters = create_cluster_graph(G_people, MIN_CLUSTER_SIZE)
-
-# initial_elements = generate_elements(G)
 LAYOUT_NAMES = [
     'grid',
     'random',
@@ -32,22 +31,11 @@ LAYOUT_NAMES = [
     'cose',
 ]
 
-
-
 graph_element = cyto.Cytoscape(
     id='cluster-graph',
     layout={'name': 'cose'},
-    style={'width': '100%', 'height': '600px', "border-style": "groove"},
-    elements=generate_elements(G_clusters, INITIAL_MIN_CLUSTER_SIZE),
-    stylesheet=[
-        {
-            "selector": "edge",
-            "style": {
-                "width": 5,
-                "line-color": "#f0f0f0"
-            }
-        }
-    ]
+    style={'width': '100%', 'height': '700px', "border-style": "groove"},
+    elements=generate_elements(config, G_clusters, INITIAL_MIN_CLUSTER_SIZE),
 )
 
 
@@ -99,48 +87,49 @@ app.layout = dbc.Container(
 )
 
 
-# @callback(
-#     Output("cluster-graph", "elements"),
-#     Input("min-cluster-size-slider", "value")
-# )
-# def update_elements(min_size):
-#     return generate_elements(G_clusters, min_size)
+@callback(
+    Output("cluster-graph", "elements"),
+    Input("min-cluster-size-slider", "value")
+)
+def update_elements(min_size):
+    return generate_elements(config, G_clusters, min_size)
 
-# @callback(
-#     Output("cluster-graph", "layout"),
-#     Input("graph-layout-select", "value")
-# )
-# def update_layout(layout):
-#     if layout == "cose":
-#         return {
-#             'name': 'cose',
-#             'nodeRepulsion': 4000,  # Adjusts repulsion force between nodes
-#             'idealEdgeLength': 100,  # Sets the ideal length for edges
-#             'edgeElasticity': 100,    # Determines how much edges resist stretching
-#             'nestingFactor': 5,       # Defines how much nesting is considered in the layout
-#             'gravity': 10, 
-#         }
-#     else:
-#         return {
-#             "name": layout,
-#             "animate": True
-#         }
+@callback(
+    Output("cluster-graph", "layout"),
+    Input("graph-layout-select", "value")
+)
+def update_layout(layout):
+    return {
+        "name": layout,
+        "animate": True
+    }
+
+@callback(
+    Output("node-info", "children"),
+    Input("cluster-graph", "tapNodeData")
+)
+def display_node_info(node_data):
+    if node_data is None:
+        return "Click on a node to see its information."
     
-# @callback(
-#     Output("node-info", "children"),
-#     Input("cluster-graph", "tapNodeData")
-# )
-# def display_node_info(node_data):
-#     if node_data is None:
-#         return "Click on a node to see its information."
+    sorted_ratios = dict(sorted(node_data["party_ratios"].items(), key=lambda item: item[1], reverse=True))
+    x_data = list(sorted_ratios.keys())
+    y_data = list(sorted_ratios.values())
+    colors_sorted = [config["party_color_map"][key] for key in sorted_ratios.keys()]
+    fig = go.Figure(data=[go.Bar(x=x_data, y=y_data, marker_color=colors_sorted)])
+    fig.update_layout(
+        title='Party Membership Ratios',
+        xaxis_title='Parties',
+        yaxis_title='Ratio',
+        dragmode=False,
+    )
     
-#     # Return the information from the clicked node
-#     card =  [
-#                 html.H4(f"Name: {node_data['name']}", className="card-title"),
-#                 html.H6(f"Partei: {node_data['party']}", className="card-subtitle"),
-#                 html.P(f"User ID: {node_data['id']}", className="card-text"),
-#             ]
-#     return card
+    card =  [
+                html.H4(f"Cluster ID: {node_data['id']}", className="card-title"),
+                html.H6(f"Size: {node_data['size']} people", className="card-subtitle"),
+                dcc.Graph(id='party-ratio-plot', figure=fig),
+            ]
+    return card
 
 if __name__ == '__main__':
     app.run_server(debug=True)

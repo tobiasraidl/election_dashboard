@@ -7,13 +7,13 @@ def load_data(file_path, config):
     df = df.dropna(subset=["hash"]).reset_index()
     df["timestamp"] = pd.to_datetime(df["timestamp"], unit="s")
     
-    values = ["afd", "spd", "grüne", "linke", "cdu", "fdp", "linke", "unknown"]
+    values = ["afd", "spd", "gruene", "linke", "cdu", "fdp", "linke", "unknown"]
     df["party"] = np.random.choice (values, size=len(df))
     
     party_color_map = {
         "afd":      config["party_color_map"]["afd"],     # Light Blue
         "spd":      config["party_color_map"]["spd"],     # Light Red
-        "grüne":    config["party_color_map"]["gruene"],   # Light Green
+        "gruene":    config["party_color_map"]["gruene"],   # Light Green
         "linke":    config["party_color_map"]["linke"],   # Thistle (Light Purple)
         "cdu":      config["party_color_map"]["cdu"],     # Gray (Light Black)
         "fdp":      config["party_color_map"]["fdp"],     # Light Yellow
@@ -34,12 +34,26 @@ def create_people_graph(df):
                 if users[i] != users[j]:  # Check to avoid self-loops
                     G.add_edge(users[i], users[j])
                 
-    # for _, row in df.iterrows():
-    #     G.nodes[row["user_id"]]["name"] = row["name"]
-    #     G.nodes[row["user_id"]]["party"] = row["party"]
-    #     G.nodes[row["user_id"]]["color"] = row["color"]
+    for _, row in df.iterrows():
+        if row["user_id"] in G:
+            G.nodes[row["user_id"]]["name"] = row["name"]
+            G.nodes[row["user_id"]]["party"] = row["party"]
             
     return G
+
+# cluster needs to be a list of user_ids
+def _get_party_ratio_of_cluster(G_people, cluster):
+    parties = [G_people.nodes[node]['party'] for node in cluster]
+    party_labels = ['afd', 'spd', 'gruene', 'linke', 'cdu', 'fdp', 'unknown']
+    party_ratios = {party: 0 for party in party_labels}
+    
+    for party in parties:
+        if party in party_ratios:
+            party_ratios[party] += 1
+            
+    total_nodes = len(cluster)
+    party_ratios = {party: (count / total_nodes) * 100 for party, count in party_ratios.items()}
+    return party_ratios
 
 # min_cluster size is the minimum it will ever be retreived
 def create_cluster_graph(G_people, min_cluster_size):
@@ -47,11 +61,15 @@ def create_cluster_graph(G_people, min_cluster_size):
     
     clusters = [cluster for cluster in all_clusters if len(cluster) >= min_cluster_size]
     clusters_mapping = enumerate(clusters)
-    print("# relevant clusters", len(clusters), "of", len(all_clusters))
+    # print("# relevant clusters", len(clusters), "of", len(all_clusters))
     
     G_clusters = nx.Graph()
     for i, cluster in clusters_mapping:
-        G_clusters.add_node(i, nodes=cluster, size=len(cluster))
+        G_clusters.add_node(i, 
+            nodes=cluster, 
+            size=len(cluster),
+            party_ratios=_get_party_ratio_of_cluster(G_people, cluster)
+        )
     
     for i in range(len(clusters)):
         for j in range(i + 1, len(clusters)):
@@ -62,12 +80,12 @@ def create_cluster_graph(G_people, min_cluster_size):
                 G_clusters.add_edge(i, j)
                 
     
-    print(len(G_clusters.nodes()), len(G_clusters.edges()))
+    # print(len(G_clusters.nodes()), len(G_clusters.edges()))
     return G_clusters
     
 def query_clusters_by_min_size(G_clusters, min_cluster_size):
     relevant_clusters = []
     for i, cluster in enumerate(G_clusters):
-        if len(G_clusters[i]["nodes"]) >= min_cluster_size:
+        if len(G_clusters.nodes[i]["nodes"]) >= min_cluster_size:
             relevant_clusters.append(cluster)
     return relevant_clusters
