@@ -45,14 +45,60 @@ def generate_cluster_graph_elements(config, G_clusters, min_size):
     return elements
 
 # clusters must be a tuple of size 2
-def generate_connection_graph_elements(G_people, cluster1_id, cluster1_nodes, cluster2_id, cluster2_nodes):
+def generate_connection_graph_elements(config, G_people, cluster1_details, cluster2_details):
     elements = [
-        {'data': {'id': f'cluster-{cluster1_id}', 'label': f'Cluster {cluster1_id}'}, 
-         'position': {'x': -1000, 'y': 0}, 
+        {
+            'data': {'id': f'cluster-left', 'label': f'Cluster {cluster1_details["id"]}'},
+            'style': {
+                'font-size': '50px',
+                'width': cluster1_details["size"]*3,
+                'height': cluster1_details["size"]*3,
+                'background-color': f'{config["party_color_map"]["unknown"]}',
+                'pie-size': '90%',
+                'pie-1-background-color': config["party_color_map"]["afd"],
+                'pie-1-background-size': f'{cluster1_details["party_ratios"]["afd"]}%',
+                'pie-2-background-color': config["party_color_map"]["spd"],
+                'pie-2-background-size': f'{cluster1_details["party_ratios"]["spd"]}%',
+                'pie-3-background-color': config["party_color_map"]["gruene"],
+                'pie-3-background-size': f'{cluster1_details["party_ratios"]["gruene"]}%',
+                'pie-4-background-color': config["party_color_map"]["linke"],
+                'pie-4-background-size': f'{cluster1_details["party_ratios"]["linke"]}%',
+                'pie-5-background-color': config["party_color_map"]["cdu"],
+                'pie-5-background-size': f'{cluster1_details["party_ratios"]["cdu"]}%',
+                'pie-6-background-color': config["party_color_map"]["fdp"],
+                'pie-6-background-size': f'{cluster1_details["party_ratios"]["fdp"]}%',
+                'pie-7-background-color': config["party_color_map"]["unknown"],
+                'pie-7-background-size': f'{cluster1_details["party_ratios"]["unknown"]}%',
+            }
+        },
+        {
+            'data': {'id': f'cluster-right', 'label': f'Cluster {cluster2_details["id"]}'},
+            'style': {
+                'font-size': '50px',
+                'width': cluster2_details["size"]*3,
+                'height': cluster2_details["size"]*3,
+                'background-color': f'{config["party_color_map"]["unknown"]}',
+                'pie-size': '90%',
+                'pie-1-background-color': config["party_color_map"]["afd"],
+                'pie-1-background-size': f'{cluster2_details["party_ratios"]["afd"]}%',
+                'pie-2-background-color': config["party_color_map"]["spd"],
+                'pie-2-background-size': f'{cluster2_details["party_ratios"]["spd"]}%',
+                'pie-3-background-color': config["party_color_map"]["gruene"],
+                'pie-3-background-size': f'{cluster2_details["party_ratios"]["gruene"]}%',
+                'pie-4-background-color': config["party_color_map"]["linke"],
+                'pie-4-background-size': f'{cluster2_details["party_ratios"]["linke"]}%',
+                'pie-5-background-color': config["party_color_map"]["cdu"],
+                'pie-5-background-size': f'{cluster2_details["party_ratios"]["cdu"]}%',
+                'pie-6-background-color': config["party_color_map"]["fdp"],
+                'pie-6-background-size': f'{cluster2_details["party_ratios"]["fdp"]}%',
+                'pie-7-background-color': config["party_color_map"]["unknown"],
+                'pie-7-background-size': f'{cluster2_details["party_ratios"]["unknown"]}%',
+            }
+        },
+        {'data': {'id': f'cluster-left', 'label': f'Cluster {cluster1_details["id"]}'},
          'style':{'shape': 'rectangle'}
         },
-        {'data': {'id': f'cluster-{cluster2_id}', 'label': f'Cluster {cluster2_id}'}, 
-         'position': {'x': 1000, 'y': 0},
+        {'data': {'id': f'cluster-right', 'label': f'Cluster {cluster2_details["id"]}'},
          'style':{'shape': 'rectangle'}
         },
     ]
@@ -60,8 +106,8 @@ def generate_connection_graph_elements(G_people, cluster1_id, cluster1_nodes, cl
     shortest_paths = []
     min_distance = float("inf")
     
-    for node1 in cluster1_nodes:
-        for node2 in cluster2_nodes:
+    for node1 in cluster1_details["nodes"]:
+        for node2 in cluster2_details["nodes"]:
             try:
                 path = nx.shortest_path(G_people, source=node1, target=node2)
                 # print(path)
@@ -78,13 +124,20 @@ def generate_connection_graph_elements(G_people, cluster1_id, cluster1_nodes, cl
         previous_node = None
         for node in path:
             elements.append({
-                'data': {'id': node}, 
+                'data': {'id': node, 'name': G_people.nodes[node]["name"], 'party': G_people.nodes[node]["party"]},
+                'style': {'backgroundColor': config["party_color_map"][G_people.nodes[node]["party"]]}, 
             })
             if previous_node != None:
                 elements.append({'data': {'source': str(previous_node), 'target': str(node)}, 'style': {'width': 1}})
             previous_node = node
         # Connect cluster_1 id with all first nodes in path and all last nodes with cluster_2 id
-        elements.append({'data': {'source': f'cluster-{cluster1_id}', 'target': path[0]}, 'style': {'width': 1}})
-        elements.append({'data': {'source': path[-1], 'target': f'cluster-{cluster2_id}'}, 'style': {'width': 1}})
+        elements.append({
+            'data': {'source': f'cluster-left', 'target': path[0]}, 
+            'style': {'width': 1}
+        })
+        elements.append({
+            'data': {'source': path[-1], 'target': f'cluster-right'}, 
+            'style': {'width': 1}
+        })
     
     return elements

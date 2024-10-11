@@ -31,7 +31,7 @@ LAYOUT_NAMES = [
     'cose',
 ]
 
-graph_element = cyto.Cytoscape(
+cluster_graph_element = cyto.Cytoscape(
     id='cluster-graph',
     layout={'name': 'cose'},
     style={'width': '100%', 'height': '700px', "border-style": "groove"},
@@ -63,11 +63,33 @@ node_info_element = dbc.Card(
     )
 )
 
+connection_graph_element = cyto.Cytoscape(
+        id='connection-graph',
+        layout={"name": "breadthfirst", 'roots': ["cluster-left"], 'direction': 'LR', 'animate': True},
+        style={'width': '100%', 'height': '700px', "border-style": "groove"},
+        elements = []
+)
+
+connection_graph_node_info_element = dbc.Card(
+    dbc.CardBody(
+        id="connection-graph-node-info",
+        children=[]
+    )
+)
+
 app.layout = dbc.Container(
     [
+        dcc.Location(id="location", refresh=True),
         dbc.Row(
             [
-                dbc.Col([graph_element, html.Div(id="connection-graph-wrapper")], width="8", className="mb-3"),
+                html.H4("Cluster View"),
+                dbc.Col(
+                    [
+                        cluster_graph_element, 
+                    ], 
+                    width="8", 
+                    className="mb-3",
+                ),
                 dbc.Col(
                     [
                         dbc.Row([slider_element], align="center", className="mb-3"),
@@ -77,10 +99,16 @@ app.layout = dbc.Container(
                     width="4",
                     className="mb-3"
                 ),
-            ], 
-            # style={"height": "400px"},
+            ],
             className="mb-4"
-        )
+        ),
+        dbc.Row([
+            html.H4(id="connection-view-title", children="Click an edge, to display connection view"),
+            dbc.Col([
+                connection_graph_element,
+            ], width="8", className="mb-3"),
+            dbc.Col(connection_graph_node_info_element, width="4", className="mb-3"),
+        ])
     ],
     fluid=True,
     style={"padding": "20px"}
@@ -132,25 +160,48 @@ def display_node_info(node_data):
     return card
 
 @app.callback(
-    Output('connection-graph-wrapper', 'children'),
+    [
+        Output('location', 'href'),
+        Output('connection-graph', 'elements'),
+        Output('connection-view-title', 'children')
+    ], 
     Input('cluster-graph', 'tapEdgeData')
 )
 def display_connection_graph(edgeData):
     if edgeData is None:
-        return html.P("Click an edge to view a new graph.")
+        return "#", [], "Click an edge to display cluster connection view"
     
-    return cyto.Cytoscape(
-        id='connection-graph',
-        layout={"name": "cose"},
-        style={'width': '100%', 'height': '700px', "border-style": "groove"},
-        elements = generate_connection_graph_elements(
-            G_people, 
-            edgeData["source"], 
-            G_clusters.nodes[int(edgeData["source"])]["nodes"], 
-            edgeData["target"], 
-            G_clusters.nodes[int(edgeData["target"])]["nodes"]
-        )
-    )
+    cluster1_details = {
+        "id": edgeData["source"], 
+        "nodes": G_clusters.nodes[int(edgeData["source"])]["nodes"],
+        "size": G_clusters.nodes[int(edgeData["source"])]["size"],
+        "party_ratios": G_clusters.nodes[int(edgeData["source"])]["party_ratios"],
+    }
+    cluster2_details = {
+        "id": edgeData["target"], 
+        "nodes": G_clusters.nodes[int(edgeData["target"])]["nodes"],
+        "size": G_clusters.nodes[int(edgeData["target"])]["size"],
+        "party_ratios": G_clusters.nodes[int(edgeData["target"])]["party_ratios"],
+    }
+    return "#connection-view-title", generate_connection_graph_elements(
+        config,
+        G_people, 
+        cluster1_details,
+        cluster2_details
+    ), "Cluster Connection View"
+    
+@callback(
+    Output("connection-graph-node-info", "children"),
+    Input("connection-graph", "tapNodeData")
+)
+def display_node_info(node_data):
+    if node_data is None:
+        return "Click a node to see its details."
+    return [
+                html.H4(f"Name: {node_data['name']}", className="card-title"),
+                html.P(f"Party: {node_data['party']}", className="card-subtitle"),
+                html.P(f"User ID: {node_data['id']}", className="card-subtitle"),
+    ]
 
 if __name__ == '__main__':
     app.run_server(debug=True)
