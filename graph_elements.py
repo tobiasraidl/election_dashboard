@@ -48,7 +48,13 @@ def generate_cluster_graph_elements(config, G_clusters, min_size):
 def generate_connection_graph_elements(config, G_people, cluster1_details, cluster2_details):
     elements = [
         {
-            'data': {'id': f'cluster-left', 'label': f'Cluster {cluster1_details["id"]}'},
+            'data': {
+                'id': f'cluster-left', 
+                'cluster-graph-id': cluster1_details["id"], 
+                'label': f'Cluster {cluster1_details["id"]}', 
+                'party_ratios': cluster1_details["party_ratios"], 
+                'size': cluster1_details["size"]
+            },
             'style': {
                 'font-size': '50px',
                 'width': cluster1_details["size"]*3,
@@ -72,7 +78,13 @@ def generate_connection_graph_elements(config, G_people, cluster1_details, clust
             }
         },
         {
-            'data': {'id': f'cluster-right', 'label': f'Cluster {cluster2_details["id"]}'},
+            'data': {
+                'id': f'cluster-right', 
+                'cluster-graph-id': cluster2_details["id"], 
+                'label': f'Cluster {cluster2_details["id"]}', 
+                'party_ratios': cluster2_details["party_ratios"], 
+                'size': cluster2_details["size"]
+            },
             'style': {
                 'font-size': '50px',
                 'width': cluster2_details["size"]*3,

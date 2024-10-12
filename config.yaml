@@ -5,4 +5,4 @@ party_color_map:
   linke: "#BE3075"    # Magenta (Die Linke)
   cdu: "#000000"      # Black (CDU)
   fdp: "#FFED00"      # Yellow (FDP)
-  unknown: "#3d3d3d"  # Grey (Unknown)
+  unknown: "#404040"  # Grey (Unknown)

@@ -198,11 +198,30 @@ def display_connection_graph(edgeData):
 def display_node_info(node_data):
     if node_data is None:
         return "Click a node to see its details."
-    return [
-                html.H4(f"Name: {node_data['name']}", className="card-title"),
-                html.P(f"Party: {node_data['party']}", className="card-subtitle"),
-                html.P(f"User ID: {node_data['id']}", className="card-subtitle"),
-    ]
+    if node_data['id'].startswith("cluster"):
+        sorted_ratios = dict(sorted(node_data["party_ratios"].items(), key=lambda item: item[1], reverse=True))
+        x_data = list(sorted_ratios.keys())
+        y_data = list(sorted_ratios.values())
+        colors_sorted = [config["party_color_map"][key] for key in sorted_ratios.keys()]
+        fig = go.Figure(data=[go.Bar(x=x_data, y=y_data, marker_color=colors_sorted)])
+        fig.update_layout(
+            title='Party Membership Ratios',
+            xaxis_title='Parties',
+            yaxis_title='Ratio',
+            dragmode=False,
+        )
+        return  [
+            html.H4(f"Cluster ID: {node_data['cluster-graph-id']}", className="card-title"),
+            html.H6(f"Size: {node_data['size']} people", className="card-subtitle"),
+            dcc.Graph(id='party-ratio-plot', figure=fig),
+        ]
+        
+    else:
+        return [
+            html.H4(f"Name: {node_data['name']}", className="card-title"),
+            html.P(f"Party: {node_data['party']}", className="card-subtitle"),
+            html.P(f"User ID: {node_data['id']}", className="card-subtitle"),
+        ]
 
 if __name__ == '__main__':
     app.run_server(debug=True)
