@@ -1,3 +1,4 @@
+import itertools
 import networkx as nx
 import pandas as pd
 import numpy as np
@@ -56,6 +57,7 @@ def _get_party_ratio_of_cluster(G_people, cluster):
     return party_ratios
 
 # min_cluster size is the minimum it will ever be retreived
+# max_connection_length is the max path length between any 2 clusters to add an edge
 def create_cluster_graph(G_people, min_cluster_size):
     all_clusters = list(nx.find_cliques(G_people))
     
@@ -75,12 +77,9 @@ def create_cluster_graph(G_people, min_cluster_size):
         for j in range(i + 1, len(clusters)):
             cluster_a = clusters[i]
             cluster_b = clusters[j]
-            
             if any(nx.has_path(G_people, node_a, node_b) for node_a in cluster_a for node_b in cluster_b):
                 G_clusters.add_edge(i, j)
                 
-    
-    # print(len(G_clusters.nodes()), len(G_clusters.edges()))
     return G_clusters
     
 def query_clusters_by_min_size(G_clusters, min_cluster_size):

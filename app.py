@@ -16,10 +16,11 @@ with open("config.yaml", "r") as file:
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 df = load_data('data/multiplatform_hashed_visuals.csv', config)
-MIN_CLUSTER_SIZE = 20
+MIN_CLUSTER_SIZE = 25
 MAX_CLUSTER_SIZE = 50
 CLUSTER_SIZE_SLIDER_STEPS = 5
-INITIAL_MIN_CLUSTER_SIZE = 20
+INITIAL_MIN_CLUSTER_SIZE = 30
+
 G_people = create_people_graph(df)
 G_clusters = create_cluster_graph(G_people, MIN_CLUSTER_SIZE)
 LAYOUT_NAMES = [

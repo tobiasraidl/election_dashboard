@@ -94,13 +94,7 @@ def generate_connection_graph_elements(config, G_people, cluster1_details, clust
                 'pie-7-background-color': config["party_color_map"]["unknown"],
                 'pie-7-background-size': f'{cluster2_details["party_ratios"]["unknown"]}%',
             }
-        },
-        {'data': {'id': f'cluster-left', 'label': f'Cluster {cluster1_details["id"]}'},
-         'style':{'shape': 'rectangle'}
-        },
-        {'data': {'id': f'cluster-right', 'label': f'Cluster {cluster2_details["id"]}'},
-         'style':{'shape': 'rectangle'}
-        },
+        }
     ]
     
     shortest_paths = []
