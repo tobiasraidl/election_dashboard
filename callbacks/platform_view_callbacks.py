@@ -15,8 +15,10 @@ def register_platform_view_callbacks():
     def generate_nodes(df):
         if df is not None:
             df = pd.DataFrame.from_dict(df)
-            G = TimespanGraph(df)
-            return G.gen_cytoscape_elements(start=datetime(2021, 9, 5), end=datetime(2021, 9, 7))
+            # G = TimespanGraph(df)
+            # return G.gen_cytoscape_elements(start=datetime(2021, 9, 5, 10, 30, 30), end=datetime(2021, 9, 7, 20, 30, 30))
+            G = PlatformGraph(df)
+            return G.gen_cytoscape_elements()
         return {}
     
     @callback(Output('platform-graph-node-info', 'children'),

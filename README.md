@@ -19,6 +19,10 @@ suppress_callback_exceptions=True if i want to callback on an element that will 
 
 
 ### Cross Platform Graph Vis Ideas
+Goal: 
+
+
+
 ##### 1.
 - node: aggregation of posts on the same platform and with same hash; size of node is how many posts aggregated; color is mapped toplatform
 - edge: nodes with same hash
@@ -28,3 +32,7 @@ suppress_callback_exceptions=True if i want to callback on an element that will 
 - graph only contains posts in a specific timespan (selected by range slider)
 - node: post; color: platform;
 - edge: same hash
+
+##### 3.
+I need a graph vis where you can click on single nodes
+On node click show the visualisation in platform_analysis.ipynb under "One image timeline"

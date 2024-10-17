@@ -30,7 +30,7 @@ app.layout = html.Div(
 )
 def load_data_frame(data):
     df = load_data('data/multiplatform_hashed_visuals.csv', config)
-    return df.to_dict()  # Convert the DataFrame to a dictionary for storage
+    return df.to_dict()
 
 @app.callback(
     dash.dependencies.Output('config-store', 'data'),

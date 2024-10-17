@@ -57,13 +57,16 @@ class PlatformGraph:
 # When generating cytoscape elements only send the selected timespan
 class TimespanGraph:
     def __init__(self, df):
-        self.df = df
+        self.df = df.groupby('hash').filter(lambda x: len(x) > 1)
         self.G = self.__create_graph()
         
     def __filter_by_timepsan(self, start, end):
         
         filtered_nodes = [n for n, data in self.G.nodes(data=True) if data['timestamp'] > start and data['timestamp'] < end]
         subgraph = self.G.subgraph(filtered_nodes)
+        nodes_with_degree_0 = [node for node, degree in subgraph.degree() if degree == 0]
+        subgraph = subgraph.copy()
+        subgraph.remove_nodes_from(nodes_with_degree_0)
         return subgraph
         
     def __create_graph(self):
@@ -73,10 +76,12 @@ class TimespanGraph:
             timestamp = datetime.strptime(row['timestamp'], date_format)
             G.add_node(row['id_user_post'], user_id=row['user_id'], platform=row['platform'], timestamp=timestamp, party=['party'], hash=row['hash'])
         grouped = self.df.groupby(['hash'])
+        i = 0
         for hash, group in grouped:
-            for row1, row2 in combinations(self.df.itertuples(index=False), 2):
-                G.add_edge(row1['id_user_post'], row2['id_user_post'])
-                
+            print(i, len(grouped))
+            i+=1
+            for row1, row2 in combinations(group.itertuples(index=False), 2):
+                G.add_edge(row1.id_user_post, row2.id_user_post)
         print(G)
         return G
                 
