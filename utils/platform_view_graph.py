@@ -1,5 +1,7 @@
 import networkx as nx
 import pandas as pd
+from itertools import combinations
+from datetime import datetime
 
 class PlatformGraph:
     
@@ -7,13 +9,13 @@ class PlatformGraph:
         self.df = df
         self.G = self.__create_graph()
         
-    def _filter_df(self):
+    def __filter_df(self):
         hash_platforms_counts = self.df.groupby('hash')['platform'].nunique()
         valid_hashes = hash_platforms_counts[hash_platforms_counts >= 3].index
         return self.df[self.df['hash'].isin(valid_hashes)]
         
     def __create_graph(self):
-        filtered_df = self._filter_df()
+        filtered_df = self.__filter_df()
         G = nx.Graph()
         graph_id_mapping = {}
         grouped = filtered_df.groupby(['platform', 'hash'])
@@ -50,3 +52,59 @@ class PlatformGraph:
             })
         return elements
     
+    
+# Generate the entire graph
+# When generating cytoscape elements only send the selected timespan
+class TimespanGraph:
+    def __init__(self, df):
+        self.df = df
+        self.G = self.__create_graph()
+        
+    def __filter_by_timepsan(self, start, end):
+        
+        filtered_nodes = [n for n, data in self.G.nodes(data=True) if data['timestamp'] > start and data['timestamp'] < end]
+        subgraph = self.G.subgraph(filtered_nodes)
+        return subgraph
+        
+    def __create_graph(self):
+        G = nx.Graph()
+        for _, row in self.df.iterrows():
+            date_format = "%Y-%m-%dT%H:%M:%S" 
+            timestamp = datetime.strptime(row['timestamp'], date_format)
+            G.add_node(row['id_user_post'], user_id=row['user_id'], platform=row['platform'], timestamp=timestamp, party=['party'], hash=row['hash'])
+        grouped = self.df.groupby(['hash'])
+        for hash, group in grouped:
+            for row1, row2 in combinations(self.df.itertuples(index=False), 2):
+                G.add_edge(row1['id_user_post'], row2['id_user_post'])
+                
+        print(G)
+        return G
+                
+    # start and end need to be in datetime format
+    def gen_cytoscape_elements(self, start, end):
+        subgraph = self.__filter_by_timepsan(start, end)
+        elements = []
+        for node, data in subgraph.nodes(data=True):
+            color = {"fb": "blue", "ig": "red", "tw": "black"}
+            elements.append({
+                'data': {
+                    'id': node, 
+                    'user_id': data.get('user_id'), 
+                    'platform': data.get('platform'), 
+                    'timestamp': data.get('timestamp'),
+                    'party': data.get('party'),
+                    'hash': data.get('hash'),
+                },
+                'style': {
+                    'background-color': color[data.get('platform')]
+                }
+            })
+            
+        for u, v in subgraph.edges():
+            elements.append({
+                'data': {'source': str(u), 'target': str(v)},
+                'style': {
+                    'width': 1
+                }
+            })
+        return elements

@@ -2,8 +2,9 @@ from dash.dependencies import Input, Output
 from dash import callback, dcc, html
 import pandas as pd
 import dash
+from datetime import datetime
 
-from utils.platform_view_graph import PlatformGraph
+from utils.platform_view_graph import PlatformGraph, TimespanGraph
 
 def register_platform_view_callbacks():
     
@@ -14,8 +15,8 @@ def register_platform_view_callbacks():
     def generate_nodes(df):
         if df is not None:
             df = pd.DataFrame.from_dict(df)
-            platform_graph = PlatformGraph(df)
-            return platform_graph.gen_cytoscape_elements()
+            G = TimespanGraph(df)
+            return G.gen_cytoscape_elements(start=datetime(2021, 9, 5), end=datetime(2021, 9, 7))
         return {}
     
     @callback(Output('platform-graph-node-info', 'children'),
