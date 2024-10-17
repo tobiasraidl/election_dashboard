@@ -1,4 +1,4 @@
-from graph_creation import query_clusters_by_min_size
+from utils.people_view_graph_creation import query_clusters_by_min_size
 import networkx as nx
 
 # min_deg: number between 100 and 200; all nodes with lower degree are ignored

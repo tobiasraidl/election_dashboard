@@ -3,8 +3,9 @@ import dash_cytoscape as cyto
 from dash import html, dcc, callback
 from dash.dependencies import Input, Output, State
 import networkx as nx
-from graph_creation import load_data, create_people_graph, create_cluster_graph
-from graph_elements import generate_cluster_graph_elements, generate_connection_graph_elements
+from utils.data_loader import load_data
+from utils.people_view_graph_creation import create_people_graph, create_cluster_graph
+from utils.people_view_graph_elements import generate_cluster_graph_elements, generate_connection_graph_elements
 import pandas as pd
 import dash_bootstrap_components as dbc
 import yaml
@@ -13,9 +14,10 @@ import plotly.graph_objs as go
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
-dash.register_page(__name__, path='/cluster-view')
-
 df = load_data('data/multiplatform_hashed_visuals.csv', config)
+dash.register_page(__name__, path='/people-view')
+
+# df = load_data('data/multiplatform_hashed_visuals.csv', config)
 MIN_CLUSTER_SIZE = 25
 MAX_CLUSTER_SIZE = 50
 CLUSTER_SIZE_SLIDER_STEPS = 5
@@ -66,7 +68,7 @@ node_info_element = dbc.Card(
 
 connection_graph_element = cyto.Cytoscape(
         id='connection-graph',
-        layout={"name": "breadthfirst", 'roots': ["cluster-left"], 'direction': 'LR', 'animate': True},
+        layout={"name": "breadthfirst", 'roots': ["cluster-left"], 'direction': 'LR', 'animate': False},
         style={'width': '100%', 'height': '700px', "border-style": "groove"},
         elements = []
 )
