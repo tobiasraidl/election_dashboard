@@ -10,12 +10,10 @@ dash.register_page(__name__, path='/platform-view')
     
 app = dash.get_app()
 
-platform_graph_element = cyto.Cytoscape(
-    id='platform-graph',
-    layout={'name': 'cose', 'animate': False},
-    style={'width': '100%', 'height': '700px', "border-style": "groove"},
-    elements={},
-)
+top_shared_images_bar_chart_element = dcc.Graph(
+    id='top-shared-images-bar-chart',
+        figure={}
+    )
 
 platform_graph_node_info_element = dbc.Card(
     dbc.CardBody(
@@ -30,17 +28,11 @@ layout = dbc.Container(
             html.H4("Platform View"),
             dbc.Col(
                 [
-                    platform_graph_element,
+                    top_shared_images_bar_chart_element,
                 ],
-                width="8", className="mb-3"
-            ),
-            dbc.Col(
-                [
-                    platform_graph_node_info_element
-                ],
-                width="4",
+                # width="6", 
                 className="mb-3"
-            )
+            ),
         ])
     ],
     fluid=True,
