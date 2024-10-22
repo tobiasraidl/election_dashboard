@@ -22,7 +22,7 @@ def create_people_graph(df):
 # cluster needs to be a list of user_ids
 def _get_party_ratio_of_cluster(G_people, cluster):
     parties = [G_people.nodes[node]['party'] for node in cluster]
-    party_labels = ['afd', 'spd', 'gruene', 'linke', 'cdu', 'fdp', 'unknown']
+    party_labels = ['afd', 'spd', 'die_gruenen', 'die_linke', 'cdu_csu', 'fdp', 'unknown']
     party_ratios = {party: 0 for party in party_labels}
     
     for party in parties:

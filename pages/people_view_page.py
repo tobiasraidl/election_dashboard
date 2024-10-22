@@ -14,11 +14,11 @@ import plotly.graph_objs as go
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
-df = load_data('data/multiplatform_hashed_visuals.csv', config)
+df = load_data('data/posts_with_party.csv')
 dash.register_page(__name__, path='/people-view')
 
 # df = load_data('data/multiplatform_hashed_visuals.csv', config)
-MIN_CLUSTER_SIZE = 25
+MIN_CLUSTER_SIZE = 10
 MAX_CLUSTER_SIZE = 50
 CLUSTER_SIZE_SLIDER_STEPS = 5
 INITIAL_MIN_CLUSTER_SIZE = 30

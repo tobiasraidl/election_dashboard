@@ -10,29 +10,61 @@ dash.register_page(__name__, path='/platform-view')
     
 app = dash.get_app()
 
-top_shared_images_bar_chart_element = dcc.Graph(
-    id='top-shared-images-bar-chart',
-        figure={}
-    )
-
-platform_graph_node_info_element = dbc.Card(
-    dbc.CardBody(
-        id="platform-graph-node-info",
-        children=[]
-    )
+image_details = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Image Details")),
+        dbc.ModalBody(
+            [
+                html.Div(
+                    [
+                        html.Div(id='image-details-text', className='top-left', style={'height': '100%', 'overflow': 'auto'}),
+                        html.Div(
+                            html.Img(
+                                src='https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png', 
+                                style={
+                                    'max-height': '200px', 
+                                    'width': '100%', 
+                                    'object-fit': 'contain'
+                                }
+                            ), 
+                            className="top-right",
+                            style={'height': '100%', 'overflow': 'hidden'}
+                        ),
+                        dcc.Graph(id='image-timeline', className='bottom-left'),
+                        dcc.Graph(figure={}, id='image-party-ratios', className='bottom-right'),
+                    ],
+                    style={
+                        'display': 'grid',
+                        'grid-template-columns': '1fr 1fr',
+                        'grid-template-rows': '1fr 2fr',
+                        'gap': '10px',      # Adds spacing between the sections
+                        'height': '100%'  # Ensures the modal is large
+                    },
+                    # className="modal-grid"
+                )
+            ]
+        ),
+    ],
+    id="image-details",
+    size="xl",
+    is_open=False,
+    scrollable=True,
 )
 
 layout = dbc.Container(
     [
+        dcc.Store(id='df-k-most-freq-hashes'),
         dbc.Row([
             html.H4("Platform View"),
             dbc.Col(
                 [
-                    top_shared_images_bar_chart_element,
+                    dbc.Spinner(html.Div(id='bar-chart-wrapper')),
+                    image_details
                 ],
                 # width="6", 
                 className="mb-3"
             ),
+            
         ])
     ],
     fluid=True,
