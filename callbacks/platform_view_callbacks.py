@@ -8,19 +8,17 @@ import plotly.express as px
 
 from utils.platform_view_graph import PlatformGraph, TimespanGraph
 
-def register_platform_view_callbacks():
+def register_platform_view_callbacks(df):
     
     @callback(
         [Output('df-k-most-freq-hashes', 'data'),
          Output('bar-chart-wrapper', 'children')],
-        [Input('df-store', 'data'),
-         Input('config-store', 'data')]
+         Input('config-store', 'data')
     )
-    def generate_barchart(df_dict, config):
+    def generate_barchart(config):
         # x ... 10 most shared images; y ... num of shares; stacked y and color ... platform
-        if df_dict is not None:
+        if config is not None:
             k=20
-            df = pd.DataFrame(df_dict)
             hash_counts = df['hash'].value_counts()
             top_hashes = hash_counts.iloc[0:k]
             most_shared_images = df[df['hash'].isin(list(top_hashes.index))]

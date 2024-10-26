@@ -1,6 +1,6 @@
 import networkx as nx
 
-def create_people_graph(df):
+def create_accounts_graph(df):
     # Create a NetworkX graph based on the relationships (user_id, hash)
     G = nx.Graph()
 
@@ -20,8 +20,8 @@ def create_people_graph(df):
     return G
 
 # cluster needs to be a list of user_ids
-def _get_party_ratio_of_cluster(G_people, cluster):
-    parties = [G_people.nodes[node]['party'] for node in cluster]
+def _get_party_ratio_of_cluster(G_accounts, cluster):
+    parties = [G_accounts.nodes[node]['party'] for node in cluster]
     party_labels = ['afd', 'spd', 'die_gruenen', 'die_linke', 'cdu_csu', 'fdp', 'unknown']
     party_ratios = {party: 0 for party in party_labels}
     
@@ -35,8 +35,8 @@ def _get_party_ratio_of_cluster(G_people, cluster):
 
 # min_cluster size is the minimum it will ever be retreived
 # max_connection_length is the max path length between any 2 clusters to add an edge
-def create_cluster_graph(G_people, min_cluster_size):
-    all_clusters = list(nx.find_cliques(G_people))
+def create_cluster_graph(G_accounts, min_cluster_size):
+    all_clusters = list(nx.find_cliques(G_accounts))
     
     clusters = [cluster for cluster in all_clusters if len(cluster) >= min_cluster_size]
     clusters_mapping = enumerate(clusters)
@@ -47,14 +47,14 @@ def create_cluster_graph(G_people, min_cluster_size):
         G_clusters.add_node(i, 
             nodes=cluster, 
             size=len(cluster),
-            party_ratios=_get_party_ratio_of_cluster(G_people, cluster)
+            party_ratios=_get_party_ratio_of_cluster(G_accounts, cluster)
         )
     
     for i in range(len(clusters)):
         for j in range(i + 1, len(clusters)):
             cluster_a = clusters[i]
             cluster_b = clusters[j]
-            if any(nx.has_path(G_people, node_a, node_b) for node_a in cluster_a for node_b in cluster_b):
+            if any(nx.has_path(G_accounts, node_a, node_b) for node_a in cluster_a for node_b in cluster_b):
                 G_clusters.add_edge(i, j)
                 
     return G_clusters

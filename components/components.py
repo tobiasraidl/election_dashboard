@@ -5,8 +5,8 @@ def Navbar():
     return dbc.NavbarSimple(
         children=[
             dbc.NavItem(dbc.NavLink("Home", href="/")),
-            dbc.NavItem(dbc.NavLink("People View", href="/people-view")),
-            dbc.NavItem(dbc.NavLink("Platform View", href="/platform-view")),
+            dbc.NavItem(dbc.NavLink("Accounts Network", href="/accounts-network")),
+            dbc.NavItem(dbc.NavLink("Cross Platform", href="/cross-platform")),
             dbc.DropdownMenu(
                 children=[
                     dbc.DropdownMenuItem("About", header=True),

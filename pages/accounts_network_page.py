@@ -3,9 +3,8 @@ import dash_cytoscape as cyto
 from dash import html, dcc, callback
 from dash.dependencies import Input, Output, State
 import networkx as nx
-from utils.data_loader import load_data
-from utils.people_view_graph_creation import create_people_graph, create_cluster_graph
-from utils.people_view_graph_elements import generate_cluster_graph_elements, generate_connection_graph_elements
+from utils.accounts_network_graph_creation import create_accounts_graph, create_cluster_graph
+from utils.accounts_network_graph_elements import generate_cluster_graph_elements, generate_connection_graph_elements
 import pandas as pd
 import dash_bootstrap_components as dbc
 import yaml
@@ -14,17 +13,16 @@ import plotly.graph_objs as go
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
-df = load_data('data/posts_with_party.csv')
-dash.register_page(__name__, path='/people-view')
+df = pd.read_csv('data/posts_with_party.csv')
+dash.register_page(__name__, path='/accounts-network')
 
-# df = load_data('data/multiplatform_hashed_visuals.csv', config)
 MIN_CLUSTER_SIZE = 10
-MAX_CLUSTER_SIZE = 50
+MAX_CLUSTER_SIZE = 30
 CLUSTER_SIZE_SLIDER_STEPS = 5
 INITIAL_MIN_CLUSTER_SIZE = 30
 
-G_people = create_people_graph(df)
-G_clusters = create_cluster_graph(G_people, MIN_CLUSTER_SIZE)
+G_accounts = create_accounts_graph(df)
+G_clusters = create_cluster_graph(G_accounts, MIN_CLUSTER_SIZE)
 LAYOUT_NAMES = [
     'grid',
     'random',
@@ -78,6 +76,13 @@ connection_graph_node_info_element = dbc.Card(
         id="connection-graph-node-info",
         children=[]
     )
+)
+
+connection_graph_modal_element = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Image Details")),
+        dbc.ModalBody(connection_graph_element)
+    ]
 )
 
 layout = dbc.Container(
@@ -157,7 +162,7 @@ def display_node_info(node_data):
     
     card =  [
                 html.H4(f"Cluster ID: {node_data['id']}", className="card-title"),
-                html.H6(f"Size: {node_data['size']} people", className="card-subtitle"),
+                html.H6(f"Size: {node_data['size']} accounts", className="card-subtitle"),
                 dcc.Graph(id='party-ratio-plot', figure=fig),
             ]
     return card
@@ -188,7 +193,7 @@ def display_connection_graph(edgeData):
     }
     return "#connection-view-title", generate_connection_graph_elements(
         config,
-        G_people, 
+        G_accounts, 
         cluster1_details,
         cluster2_details
     ), "Cluster Connection View"
@@ -214,7 +219,7 @@ def display_node_info(node_data):
         )
         return  [
             html.H4(f"Cluster ID: {node_data['cluster-graph-id']}", className="card-title"),
-            html.H6(f"Size: {node_data['size']} people", className="card-subtitle"),
+            html.H6(f"Size: {node_data['size']} accounts", className="card-subtitle"),
             dcc.Graph(id='party-ratio-plot', figure=fig),
         ]
         

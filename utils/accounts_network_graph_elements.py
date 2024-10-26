@@ -1,4 +1,4 @@
-from utils.people_view_graph_creation import query_clusters_by_min_size
+from utils.accounts_network_graph_creation import query_clusters_by_min_size
 import networkx as nx
 
 # min_deg: number between 100 and 200; all nodes with lower degree are ignored
@@ -11,7 +11,7 @@ def generate_cluster_graph_elements(config, G_clusters, min_size):
     for node in H.nodes():
         node_info = H.nodes[node]
         elements.append({
-            'data': {'id': str(node), 'size': node_info["size"], 'people': node_info["nodes"], 'party_ratios': node_info["party_ratios"]},
+            'data': {'id': str(node), 'size': node_info["size"], 'accounts': node_info["nodes"], 'party_ratios': node_info["party_ratios"]},
             'style': {
                 'width': node_info["size"]*2,
                 'height': node_info["size"]*2,
@@ -45,7 +45,7 @@ def generate_cluster_graph_elements(config, G_clusters, min_size):
     return elements
 
 # clusters must be a tuple of size 2
-def generate_connection_graph_elements(config, G_people, cluster1_details, cluster2_details):
+def generate_connection_graph_elements(config, G_accounts, cluster1_details, cluster2_details):
     elements = [
         {
             'data': {
@@ -115,7 +115,7 @@ def generate_connection_graph_elements(config, G_people, cluster1_details, clust
     for node1 in cluster1_details["nodes"]:
         for node2 in cluster2_details["nodes"]:
             try:
-                path = nx.shortest_path(G_people, source=node1, target=node2)
+                path = nx.shortest_path(G_accounts, source=node1, target=node2)
                 # print(path)
                 distance = len(path)
                 if distance == min_distance:
@@ -130,8 +130,8 @@ def generate_connection_graph_elements(config, G_people, cluster1_details, clust
         previous_node = None
         for node in path:
             elements.append({
-                'data': {'id': node, 'name': G_people.nodes[node]["name"], 'party': G_people.nodes[node]["party"]},
-                'style': {'backgroundColor': config["party_color_map"][G_people.nodes[node]["party"]]}, 
+                'data': {'id': node, 'name': G_accounts.nodes[node]["name"], 'party': G_accounts.nodes[node]["party"]},
+                'style': {'backgroundColor': config["party_color_map"][G_accounts.nodes[node]["party"]]}, 
             })
             if previous_node != None:
                 elements.append({'data': {'source': str(previous_node), 'target': str(node)}, 'style': {'width': 1}})

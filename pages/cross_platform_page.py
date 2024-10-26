@@ -3,12 +3,13 @@ from dash import dcc, html
 import yaml
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
+import pandas as pd
 
 from callbacks.platform_view_callbacks import register_platform_view_callbacks
 
-dash.register_page(__name__, path='/platform-view')
+dash.register_page(__name__, path='/cross-platform')
     
-app = dash.get_app()
+df = pd.read_csv('data/cross_platform_posts.csv')
 
 image_details = dbc.Modal(
     [
@@ -71,4 +72,4 @@ layout = dbc.Container(
     style={"padding": "20px"}
 )
 
-register_platform_view_callbacks()
+register_platform_view_callbacks(df)
