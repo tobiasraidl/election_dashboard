@@ -67,7 +67,7 @@ node_info_element = dbc.Card(
 connection_graph_element = cyto.Cytoscape(
         id='connection-graph',
         layout={"name": "breadthfirst", 'roots': ["cluster-left"], 'direction': 'LR', 'animate': False},
-        style={'width': '100%', 'height': '700px', "border-style": "groove"},
+        style={'width': '100%', 'height': '100%', "border-style": "groove"},
         elements = []
 )
 
@@ -75,14 +75,34 @@ connection_graph_node_info_element = dbc.Card(
     dbc.CardBody(
         id="connection-graph-node-info",
         children=[]
-    )
+    ),
 )
 
 connection_graph_modal_element = dbc.Modal(
     [
-        dbc.ModalHeader(dbc.ModalTitle("Image Details")),
-        dbc.ModalBody(connection_graph_element)
-    ]
+        dbc.ModalHeader(dbc.ModalTitle("Cluster Connection View")),
+        dbc.ModalBody([
+            html.Div(
+                [
+                    dbc.Col(
+                        [connection_graph_element], 
+                        className="mb-3"
+                    ),
+                    dbc.Col(connection_graph_node_info_element, className="mb-3"),
+                ],
+                style={
+                    'display': 'grid',
+                    'grid-template-columns': '1fr 1fr',
+                    'gap': '10px',      # Adds spacing between the sections
+                    'height': '100%'  # Ensures the modal is large
+                }
+            )
+            
+        ])
+    ],
+    id="connection-graph-modal",
+    size="xl",
+    is_open=False,
 )
 
 layout = dbc.Container(
@@ -111,11 +131,7 @@ layout = dbc.Container(
             className="mb-4"
         ),
         dbc.Row([
-            html.H4(id="connection-view-title", children="Click an edge, to display connection view"),
-            dbc.Col([
-                connection_graph_element,
-            ], width="8", className="mb-3"),
-            dbc.Col(connection_graph_node_info_element, width="4", className="mb-3"),
+            connection_graph_modal_element
         ])
     ],
     fluid=True,
@@ -169,15 +185,15 @@ def display_node_info(node_data):
 
 @callback(
     [
-        Output('location', 'href'),
         Output('connection-graph', 'elements'),
-        Output('connection-view-title', 'children')
+        Output('connection-graph-modal', 'is_open')
     ], 
-    Input('cluster-graph', 'tapEdgeData')
+    Input('cluster-graph', 'tapEdgeData'),
+    State('connection-graph-modal', 'is_open')
 )
-def display_connection_graph(edgeData):
+def display_connection_graph(edgeData, is_open):
     if edgeData is None:
-        return "#", [], "Click an edge to display cluster connection view"
+        return [], is_open
     
     cluster1_details = {
         "id": edgeData["source"], 
@@ -191,12 +207,12 @@ def display_connection_graph(edgeData):
         "size": G_clusters.nodes[int(edgeData["target"])]["size"],
         "party_ratios": G_clusters.nodes[int(edgeData["target"])]["party_ratios"],
     }
-    return "#connection-view-title", generate_connection_graph_elements(
+    return generate_connection_graph_elements(
         config,
         G_accounts, 
         cluster1_details,
         cluster2_details
-    ), "Cluster Connection View"
+    ), True
     
 @callback(
     Output("connection-graph-node-info", "children"),

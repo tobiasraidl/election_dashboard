@@ -56,13 +56,36 @@ layout = dbc.Container(
     [
         dcc.Store(id='df-k-most-freq-hashes'),
         dbc.Row([
-            html.H4("Platform View"),
+
+            # html.Div(id="radio-buttons-error")
+        ]),
+        dbc.Row([
+            html.H4("Platform View", style={'text-align': 'center'}),
+            dbc.Col(
+                [
+                    html.Div([
+                        dbc.Alert("Select at least two platforms.", color="secondary"),
+                        dbc.Checklist(
+                            options=[
+                                {"label": "Twitter", "value": "Twitter"},
+                                {"label": "Instagram", "value": "Instagram"},
+                                {"label": "Facebook", "value": "Facebook"},
+                            ],
+                            id="switches",
+                            value=["Twitter", "Instagram", "Facebook"],  # Default: all options are True
+                            switch=True
+                        ),
+                    ], style={'display': 'flex', 'flex-direction': 'column', 'justify-content': 'center'})
+                ],
+                width='2',
+                className='mb-3'
+            ),
             dbc.Col(
                 [
                     dbc.Spinner(html.Div(id='bar-chart-wrapper')),
                     image_details
                 ],
-                # width="6", 
+                width="10", 
                 className="mb-3"
             ),
             

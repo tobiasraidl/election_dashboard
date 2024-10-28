@@ -2,6 +2,8 @@
 
 [ ] search function for hash to get image details
 
+[ ] visualise loading when modals are opening but still loading
+
 [ ] mono multi platform filter if nothing checkd just display all platforms example: 3 radio boxes and always load images that were shared on exactly these 2 platforms (not more not less)
 
 [x] accounts instead of people

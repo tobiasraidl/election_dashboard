@@ -1,5 +1,5 @@
 from dash.dependencies import Input, Output, State
-from dash import callback, dcc, html
+from dash import callback, Output, Input, State, callback_context, dcc, html
 import pandas as pd
 import dash
 from datetime import datetime
@@ -10,50 +10,124 @@ from utils.platform_view_graph import PlatformGraph, TimespanGraph
 
 def register_platform_view_callbacks(df):
     
+    def gen_barchart(config, filtered_df):
+        k=20
+        hash_counts = filtered_df['hash'].value_counts()
+        top_hashes = hash_counts.iloc[0:k]
+        most_shared_images = filtered_df[filtered_df['hash'].isin(list(top_hashes.index))]
+        counts = most_shared_images.groupby(['hash', 'platform'])['platform'].count()
+
+        df_temp = counts.unstack(fill_value=0)
+
+        fig = go.Figure()
+
+        platform_colors = {
+            'Facebook': config['platform_color_map']['Facebook'],
+            'Instagram': config['platform_color_map']['Instagram'],
+            'Twitter': config['platform_color_map']['Twitter']
+        }
+
+        for platform in df_temp.columns:
+            fig.add_trace(go.Bar(
+                x=df_temp.index,
+                y=df_temp[platform],
+                name=platform,
+                marker_color=platform_colors[platform]
+            ))
+
+        fig.update_layout(
+            barmode='stack',
+            # title="Most Shared Images by Platform",
+            xaxis_title="Hash",
+            yaxis_title="Count",
+            xaxis={'categoryorder': 'total descending'},
+        )
+            
+        bar_chart = dcc.Graph(figure=fig, id='bar-chart')
+            
+        return most_shared_images.to_dict(), bar_chart
+    
     @callback(
         [Output('df-k-most-freq-hashes', 'data'),
          Output('bar-chart-wrapper', 'children')],
-         Input('config-store', 'data')
+        [Input('config-store', 'data'),
+         Input("switches", "value")],
+        State('config-store', 'data'),
+        prevent_initial_call=True
     )
-    def generate_barchart(config):
-        # x ... 10 most shared images; y ... num of shares; stacked y and color ... platform
-        if config is not None:
-            k=20
-            hash_counts = df['hash'].value_counts()
-            top_hashes = hash_counts.iloc[0:k]
-            most_shared_images = df[df['hash'].isin(list(top_hashes.index))]
-            counts = most_shared_images.groupby(['hash', 'platform'])['platform'].count()
+    def update_bar_chart(config_data, selected_values, current_values):
+        ctx = callback_context
+        if not ctx.triggered:
+            return {}, None
 
-            df_temp = counts.unstack(fill_value=0)
+        # Get the id of the triggered input
+        triggered_input = ctx.triggered[0]["prop_id"].split(".")[0]
 
-            fig = go.Figure()
+        if triggered_input == "config-store":
+            # This is the first callback functionality (init_barchart)
+            if config_data is not None:
+                most_shared_images_dict, bar_chart = gen_barchart(config_data, df)
+                return most_shared_images_dict, bar_chart
+            return {}, None
 
-            platform_colors = {
-                'Facebook': config['platform_color_map']['Facebook'],
-                'Instagram': config['platform_color_map']['Instagram'],
-                'Twitter': config['platform_color_map']['Twitter']
-            }
+        elif triggered_input == "switches":
+            # This is the second callback functionality (enforce_two_switches)
+            hash_platform_counts = df.groupby('hash')['platform'].apply(set)
 
-            for platform in df_temp.columns:
-                fig.add_trace(go.Bar(
-                    x=df_temp.index,
-                    y=df_temp[platform],
-                    name=platform,
-                    marker_color=platform_colors[platform]
-                ))
+            required_platforms = set(selected_values)  # Platforms to include
+            excluded_platforms = {"Facebook", "Instagram", "Twitter"} - required_platforms  # Platforms to exclude
 
-            fig.update_layout(
-                barmode='stack',
-                title="Most Shared Images by Platform",
-                xaxis_title="Hash",
-                yaxis_title="Count",
-                xaxis={'categoryorder': 'total descending'},
-            )
-            
-            bar_chart = dcc.Graph(figure=fig, id='bar-chart')
-            
-            return most_shared_images.to_dict(), bar_chart
-        return {}
+            # Filter hashes based on selected values
+            valid_hashes = hash_platform_counts[
+                hash_platform_counts.apply(
+                    lambda x: required_platforms.issubset(x) and not any(platform in x for platform in excluded_platforms)
+                )
+            ].index
+
+            # Step 2: Filter the original dataframe to include only these valid hashes
+            filtered_df = df[df['hash'].isin(valid_hashes)]
+        
+            most_shared_images_dict, bar_chart = gen_barchart(config_data, filtered_df)
+            return most_shared_images_dict, bar_chart
+
+        # Fallback return in case something goes wrong
+        return {}, None
+    
+    # @callback(
+    #     [Output('df-k-most-freq-hashes', 'data'),
+    #      Output('bar-chart-wrapper', 'children')],
+    #      Input('config-store', 'data'),
+    #      allow_duplicate=True
+    # )
+    # def init_barchart(config):
+    #     # x ... 10 most shared images; y ... num of shares; stacked y and color ... platform
+    #     if config is not None:
+    #         most_shared_images_dict, bar_chart = gen_barchart(config, df)
+    #         return most_shared_images_dict, bar_chart
+    #     return {}
+    
+    # @callback(
+    #     [Output('df-k-most-freq-hashes', 'data'),
+    #      Output('bar-chart-wrapper', 'children')],
+    #     Input("switches", "value"),
+    #     State('config', 'data'),
+    #     prevent_initial_call=True,
+    #     allow_duplicate=True
+    # )
+    # def apply_filter_on_barchart(selected_values, current_values, config):
+    #     print(selected_values)
+    #     hash_platform_counts = df.groupby('hash')['platform'].apply(set)
+
+    #     # Keep only hashes that contain both 'Instagram' and 'Facebook' but exclude 'Twitter'
+    #     valid_hashes = hash_platform_counts[
+    #         hash_platform_counts.apply(lambda x: 'Instagram' in x and 'Facebook' in x and 'Twitter' not in x)
+    #     ].index
+
+    #     # Step 2: Filter the original dataframe to include only these valid hashes
+    #     filtered_df = df[df['hash'].isin(valid_hashes)]
+        
+    #     most_shared_images_dict, bar_chart = gen_barchart(config, filtered_df)
+    #     return most_shared_images_dict, bar_chart
     
     @callback(
         [Output('image-details', 'is_open'),
@@ -138,3 +212,4 @@ def register_platform_view_callbacks(df):
             return True, fig_timeline, image_details_text, fig_party_ratios
     
         return is_open, dash.no_update, [], {}
+    
