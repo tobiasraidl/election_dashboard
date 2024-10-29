@@ -35,7 +35,7 @@ LAYOUT_NAMES = [
 cluster_graph_element = cyto.Cytoscape(
     id='cluster-graph',
     layout={'name': 'cose'},
-    style={'width': '100%', 'height': '700px', "border-style": "groove"},
+    style={'width': '100%', 'height': '700px', "borderStyle": "groove"},
     elements=generate_cluster_graph_elements(config, G_clusters, INITIAL_MIN_CLUSTER_SIZE),
 )
 
@@ -67,7 +67,7 @@ node_info_element = dbc.Card(
 connection_graph_element = cyto.Cytoscape(
         id='connection-graph',
         layout={"name": "breadthfirst", 'roots': ["cluster-left"], 'direction': 'LR', 'animate': False},
-        style={'width': '100%', 'height': '100%', "border-style": "groove"},
+        style={'width': '100%', 'height': '100%', "borderStyle": "groove"},
         elements = []
 )
 
@@ -76,6 +76,7 @@ connection_graph_node_info_element = dbc.Card(
         id="connection-graph-node-info",
         children=[]
     ),
+    style={'height': '100%'}
 )
 
 connection_graph_modal_element = dbc.Modal(
@@ -91,10 +92,9 @@ connection_graph_modal_element = dbc.Modal(
                     dbc.Col(connection_graph_node_info_element, className="mb-3"),
                 ],
                 style={
-                    'display': 'grid',
-                    'grid-template-columns': '1fr 1fr',
+                    'display': 'flex',
                     'gap': '10px',      # Adds spacing between the sections
-                    'height': '100%'  # Ensures the modal is large
+                    'height': '600px'  # Ensures the modal is large
                 }
             )
             
@@ -153,7 +153,7 @@ def update_elements(min_size):
 def update_layout(layout):
     return {
         "name": layout,
-        "animate": True
+        "animate": False
     }
 
 @callback(
@@ -207,12 +207,13 @@ def display_connection_graph(edgeData, is_open):
         "size": G_clusters.nodes[int(edgeData["target"])]["size"],
         "party_ratios": G_clusters.nodes[int(edgeData["target"])]["party_ratios"],
     }
-    return generate_connection_graph_elements(
+    elements = generate_connection_graph_elements(
         config,
         G_accounts, 
         cluster1_details,
         cluster2_details
-    ), True
+    )
+    return elements, True
     
 @callback(
     Output("connection-graph-node-info", "children"),
@@ -241,7 +242,7 @@ def display_node_info(node_data):
         
     else:
         return [
-            html.H4(f"Name: {node_data['name']}", className="card-title"),
+            html.H4(f"Account Name: {node_data['name']}", className="card-title"),
             html.P(f"Party: {node_data['party']}", className="card-subtitle"),
             html.P(f"User ID: {node_data['id']}", className="card-subtitle"),
         ]

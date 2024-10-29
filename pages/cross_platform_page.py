@@ -64,7 +64,7 @@ layout = dbc.Container(
             dbc.Col(
                 [
                     html.Div([
-                        dbc.Alert("Select at least two platforms.", color="secondary"),
+                        html.P('Filter images by platform'),
                         dbc.Checklist(
                             options=[
                                 {"label": "Twitter", "value": "Twitter"},
@@ -75,7 +75,14 @@ layout = dbc.Container(
                             value=["Twitter", "Instagram", "Facebook"],  # Default: all options are True
                             switch=True
                         ),
-                    ], style={'display': 'flex', 'flex-direction': 'column', 'justify-content': 'center'})
+                        dbc.Alert("Select at least two platforms.", color="secondary"),
+                    ], style={
+                            'display': 'flex',
+                            'flex-direction': 'column',
+                            'justify-content': 'center',
+                            'align-items': 'center',
+                            'height': '400px'
+                        })
                 ],
                 width='2',
                 className='mb-3'

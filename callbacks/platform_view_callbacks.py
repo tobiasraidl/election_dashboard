@@ -38,8 +38,8 @@ def register_platform_view_callbacks(df):
         fig.update_layout(
             barmode='stack',
             # title="Most Shared Images by Platform",
-            xaxis_title="Hash",
-            yaxis_title="Count",
+            xaxis_title="Image Hash",
+            yaxis_title="Times Shared",
             xaxis={'categoryorder': 'total descending'},
         )
             
@@ -52,12 +52,15 @@ def register_platform_view_callbacks(df):
          Output('bar-chart-wrapper', 'children')],
         [Input('config-store', 'data'),
          Input("switches", "value")],
-        State('config-store', 'data'),
-        prevent_initial_call=True
+        # State('config-store', 'data'),
     )
-    def update_bar_chart(config_data, selected_values, current_values):
+    def update_bar_chart(config_data, selected_values):
         ctx = callback_context
         if not ctx.triggered:
+            # This is the first callback functionality (init_barchart)
+            if config_data is not None:
+                most_shared_images_dict, bar_chart = gen_barchart(config_data, df)
+                return most_shared_images_dict, bar_chart
             return {}, None
 
         # Get the id of the triggered input
@@ -65,12 +68,16 @@ def register_platform_view_callbacks(df):
 
         if triggered_input == "config-store":
             # This is the first callback functionality (init_barchart)
+            if len(selected_values) < 2:
+                return {}, html.P('Select at least two platforms')
             if config_data is not None:
                 most_shared_images_dict, bar_chart = gen_barchart(config_data, df)
                 return most_shared_images_dict, bar_chart
             return {}, None
 
         elif triggered_input == "switches":
+            if len(selected_values) < 2:
+                return {}, html.P('Select at least two platforms')
             # This is the second callback functionality (enforce_two_switches)
             hash_platform_counts = df.groupby('hash')['platform'].apply(set)
 
