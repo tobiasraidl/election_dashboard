@@ -64,6 +64,8 @@ node_info_element = dbc.Card(
     )
 )
 
+### CONNECTION GRAPH MODAL
+
 connection_graph_element = cyto.Cytoscape(
         id='connection-graph',
         layout={"name": "breadthfirst", 'roots': ["cluster-left"], 'direction': 'LR', 'animate': False},
@@ -105,6 +107,49 @@ connection_graph_modal_element = dbc.Modal(
     is_open=False,
 )
 
+### CLUSTER INSPECTION GRAPH MODAL
+
+cluster_inspection_graph_element = cyto.Cytoscape(
+        id='cluster-inspection-graph',
+        layout={'name': 'cose'},
+        style={'width': '100%', 'height': '100%', "borderStyle": "groove"},
+        elements = []
+)
+
+cluster_inspection_graph_node_info_element = dbc.Card(
+    dbc.CardBody(
+        id="cluster-inspection-graph-node-info",
+        children=[]
+    ),
+    style={'height': '100%'}
+)
+
+cluster_inspection_graph_modal_element = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Cluster Inspection")),
+        dbc.ModalBody([
+            html.Div(
+                [
+                    dbc.Col(
+                        [cluster_inspection_graph_element], 
+                        className="mb-3"
+                    ),
+                    dbc.Col(cluster_inspection_graph_node_info_element, className="mb-3"),
+                ],
+                style={
+                    'display': 'flex',
+                    'gap': '10px',      # Adds spacing between the sections
+                    'height': '600px'  # Ensures the modal is large
+                }
+            )
+            
+        ])
+    ],
+    id="cluster-inspection-graph-modal",
+    size="xl",
+    is_open=False,
+)
+
 layout = dbc.Container(
     [
         dcc.Location(id="location", refresh=True),
@@ -131,7 +176,8 @@ layout = dbc.Container(
             className="mb-4"
         ),
         dbc.Row([
-            connection_graph_modal_element
+            connection_graph_modal_element,
+            cluster_inspection_graph_modal_element
         ])
     ],
     fluid=True,
@@ -155,33 +201,87 @@ def update_layout(layout):
         "name": layout,
         "animate": False
     }
+    
+@callback(
+    Output('cluster-inspection-graph-modal', 'is_open'),
+    Input('cluster-graph', 'tapNodeData'),
+    State('cluster-inspection-graph-modal', 'is_open'),
+    prevent_initial_call=True
+)
+def toggle_cluster_inspection_modal(node_data, is_open):
+    print("test")
+    if node_data:  # Only toggle if a node is clicked
+        return not is_open
+    return is_open
 
 @callback(
-    Output("node-info", "children"),
-    Input("cluster-graph", "tapNodeData")
+    Output('cluster-inspection-graph', 'elements'),
+    Input('cluster-graph', 'tapNodeData')
 )
-def display_node_info(node_data):
-    if node_data is None:
-        return "Click on a node to see its information."
+def update_cluster_inspection_graph(node_data):
+    print("test2")
+    if node_data:
+        # Define elements based on node_data
+        elements = [
+            {'data': {'id': 'A', 'label': 'Node A'}, 'position': {'x': 50, 'y': 50}},
+            {'data': {'id': 'B', 'label': 'Node B'}, 'position': {'x': 150, 'y': 150}},
+            {'data': {'id': 'C', 'label': 'Node C'}, 'position': {'x': 250, 'y': 250}},
+            {'data': {'source': 'A', 'target': 'B'}},
+            {'data': {'source': 'B', 'target': 'C'}}
+        ]
+        return elements
+    return []
+
+# @callback(
+#     [
+#         Output('cluster-inspection-graph', 'elements'),
+#         Output('cluster-inspection-graph-modal', 'is_open')
+#     ], 
+#     Input('cluster-graph', 'tapNodeData'),
+#     State('cluster-inspection-graph-modal', 'is_open')
+# )
+# def display_cluster_inspection_graph(node_data, is_open):
+#     if node_data:  # Only update and toggle if a node is clicked
+#         # Create elements based on the node data
+#         elements = [
+#             {'data': {'id': 'A', 'label': 'Node A'}, 'position': {'x': 50, 'y': 50}},
+#             {'data': {'id': 'B', 'label': 'Node B'}, 'position': {'x': 150, 'y': 150}},
+#             {'data': {'id': 'C', 'label': 'Node C'}, 'position': {'x': 250, 'y': 250}},
+#             {'data': {'source': 'A', 'target': 'B'}},
+#             {'data': {'source': 'B', 'target': 'C'}}
+#         ]
+#         return elements, not is_open  # Toggle modal state and update graph
+
+#     # Return existing state and empty elements if no node is tapped
+#     return [], is_open
+
+
+# @callback(
+#     Output("node-info", "children"),
+#     Input("cluster-graph", "tapNodeData")
+# )
+# def display_node_info(node_data):
+#     if node_data is None:
+#         return "Click on a node to see its information."
     
-    sorted_ratios = dict(sorted(node_data["party_ratios"].items(), key=lambda item: item[1], reverse=True))
-    x_data = list(sorted_ratios.keys())
-    y_data = list(sorted_ratios.values())
-    colors_sorted = [config["party_color_map"][key] for key in sorted_ratios.keys()]
-    fig = go.Figure(data=[go.Bar(x=x_data, y=y_data, marker_color=colors_sorted)])
-    fig.update_layout(
-        title='Party Membership Ratios',
-        xaxis_title='Parties',
-        yaxis_title='Ratio',
-        dragmode=False,
-    )
+#     sorted_ratios = dict(sorted(node_data["party_ratios"].items(), key=lambda item: item[1], reverse=True))
+#     x_data = list(sorted_ratios.keys())
+#     y_data = list(sorted_ratios.values())
+#     colors_sorted = [config["party_color_map"][key] for key in sorted_ratios.keys()]
+#     fig = go.Figure(data=[go.Bar(x=x_data, y=y_data, marker_color=colors_sorted)])
+#     fig.update_layout(
+#         title='Party Membership Ratios',
+#         xaxis_title='Parties',
+#         yaxis_title='Ratio',
+#         dragmode=False,
+#     )
     
-    card =  [
-                html.H4(f"Cluster ID: {node_data['id']}", className="card-title"),
-                html.H6(f"Size: {node_data['size']} accounts", className="card-subtitle"),
-                dcc.Graph(id='party-ratio-plot', figure=fig),
-            ]
-    return card
+#     card =  [
+#                 html.H4(f"Cluster ID: {node_data['id']}", className="card-title"),
+#                 html.H6(f"Size: {node_data['size']} accounts", className="card-subtitle"),
+#                 dcc.Graph(id='party-ratio-plot', figure=fig),
+#             ]
+#     return card
 
 @callback(
     [
@@ -219,7 +319,7 @@ def display_connection_graph(edgeData, is_open):
     Output("connection-graph-node-info", "children"),
     Input("connection-graph", "tapNodeData")
 )
-def display_node_info(node_data):
+def display_connection_graph_node_info(node_data):
     if node_data is None:
         return "Click a node to see its details."
     if node_data['id'].startswith("cluster"):

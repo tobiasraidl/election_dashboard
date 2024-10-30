@@ -9,6 +9,9 @@
 [x] accounts instead of people
 
 [ ] click on cluster -> show network of the cluster with edges thickness (and weight for cose) mapped to how many same images these people shared [ ] cluster graph add weights and edge thickness based on how many connections between clusters
+    1. make callback similar to connection graph modal toggle callback
+    2. left graph, right node info on click
+    3. graph contains accounts of the cluster clicked as nodes with edges if they have shared the same image. 
 
 technical todos: [x] prefilter the all_posts.csv dataframe (e.g. only include rows that are used -> 2dfs: for platform only ones that have at least same hash; for accs only that have party and same) [ ] check why sometimes on bar click of bar chart nothing happens [ ] check why sometimes the page doesnt scroll down when clicking on edge connection [ ] when bar in barchart is clicked already open the modal with a spinner until shit is loaded
 
