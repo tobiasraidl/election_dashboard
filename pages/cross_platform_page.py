@@ -9,6 +9,8 @@ import os
 from callbacks.platform_view_callbacks import register_platform_view_callbacks
 
 dash.register_page(__name__, path='/cross-platform')
+
+
     
 df = pd.read_csv('data/cross_platform_posts.csv')
 image_details = dbc.Modal(
@@ -21,6 +23,7 @@ image_details = dbc.Modal(
                         html.Div(id='image-details-text', className='top-left', style={'height': '100%', 'overflow': 'auto'}),
                         html.Div(
                             html.Img(
+                                id='image',
                                 src='assets/placeholder.jpg', 
                                 style={
                                     'max-height': '200px', 

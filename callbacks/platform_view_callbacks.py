@@ -5,6 +5,8 @@ import dash
 from datetime import datetime
 import plotly.graph_objects as go
 import plotly.express as px
+import base64
+import os
 
 from utils.platform_view_graph import PlatformGraph, TimespanGraph
 
@@ -140,7 +142,8 @@ def register_platform_view_callbacks(df):
         [Output('image-details', 'is_open'),
          Output('image-timeline', 'figure'),
          Output('image-details-text', 'children'),
-         Output('image-party-ratios', 'figure')],
+         Output('image-party-ratios', 'figure'),
+         Output('image', 'src')],
          Input('bar-chart', 'clickData'),
         [State('image-details', 'is_open'),
          State('df-k-most-freq-hashes', 'data'),
@@ -216,7 +219,17 @@ def register_platform_view_callbacks(df):
                 html.P(f"Times Shared: {df_one_hash.shape[0]}"),
             ]
             
-            return True, fig_timeline, image_details_text, fig_party_ratios
+            imgfile = f'images/{image_hash_clicked}.jpg'
+            if os.path.exists(imgfile):
+                with open(imgfile, "rb") as image_file:
+                    img_data = base64.b64encode(image_file.read())
+                    img_data = img_data.decode()
+                    img_data = "{}{}".format("data:image/jpg;base64, ", img_data)
+            else:
+                img_data = 'assets/placeholder.jpg'
+
+            
+            return True, fig_timeline, image_details_text, fig_party_ratios, img_data
     
-        return is_open, dash.no_update, [], {}
+        return is_open, dash.no_update, [], {}, 'assets/placeholder.jpg'
     

@@ -78,11 +78,11 @@ class TimespanGraph:
         grouped = self.df.groupby(['hash'])
         i = 0
         for hash, group in grouped:
-            print(i, len(grouped))
+            # print(i, len(grouped))
             i+=1
             for row1, row2 in combinations(group.itertuples(index=False), 2):
                 G.add_edge(row1.id_user_post, row2.id_user_post)
-        print(G)
+        # print(G)
         return G
                 
     # start and end need to be in datetime format
