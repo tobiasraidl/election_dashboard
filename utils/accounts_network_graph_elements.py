@@ -2,6 +2,7 @@ from utils.accounts_network_graph_creation import query_clusters_by_min_size
 import networkx as nx
 import itertools
 import pandas as pd
+import hashlib
 
 # min_deg: number between 100 and 200; all nodes with lower degree are ignored
 def generate_cluster_graph_elements(config, G_clusters, min_size):
@@ -40,7 +41,8 @@ def generate_cluster_graph_elements(config, G_clusters, min_size):
         elements.append({
             'data': {'source': str(edge[0]), 'target': str(edge[1])},
             'style': {
-                'width': 1
+                'width': 1,
+                'opacity': 0.5
             }
         })
         
@@ -128,26 +130,40 @@ def generate_connection_graph_elements(config, G_accounts, cluster1_details, clu
             except nx.NetworkXNoPath:
                 continue
     
+    unique_nodes = set()
+    unique_edges = set()
+
     for path in shortest_paths:
         previous_node = None
         for node in path:
-            elements.append({
-                'data': {'id': node, 'name': G_accounts.nodes[node]["name"], 'party': G_accounts.nodes[node]["party"]},
-                'style': {'backgroundColor': config["party_color_map"][G_accounts.nodes[node]["party"]]}, 
-            })
-            if previous_node != None:
-                elements.append({'data': {'source': str(previous_node), 'target': str(node)}, 'style': {'width': 1}})
+            # Add node only if it's not already in unique_nodes
+            if node not in unique_nodes:
+                elements.append({
+                    'data': {'id': node, 'name': G_accounts.nodes[node]["name"], 'party': G_accounts.nodes[node]["party"]},
+                    'style': {'backgroundColor': config["party_color_map"][G_accounts.nodes[node]["party"]]}, 
+                })
+                unique_nodes.add(node)  # Track node to avoid duplicates
+
+            # Add edge only if it’s not already in unique_edges
+            if previous_node is not None:
+                edge = (str(previous_node), str(node))  # Define edge as a tuple of (source, target)
+                if edge not in unique_edges:
+                    elements.append({'data': {'source': edge[0], 'target': edge[1]}, 'style': {'width': 3}})
+                    unique_edges.add(edge)  # Track edge to avoid duplicates
+
             previous_node = node
-        # Connect cluster_1 id with all first nodes in path and all last nodes with cluster_2 id
-        elements.append({
-            'data': {'source': f'cluster-left', 'target': path[0]}, 
-            'style': {'width': 1}
-        })
-        elements.append({
-            'data': {'source': path[-1], 'target': f'cluster-right'}, 
-            'style': {'width': 1}
-        })
-    
+
+        # Add edges connecting to cluster nodes only if they are unique
+        start_edge = (f'cluster-left', path[0])
+        if start_edge not in unique_edges:
+            elements.append({'data': {'source': start_edge[0], 'target': start_edge[1]}, 'style': {'width': 3}})
+            unique_edges.add(start_edge)
+
+        end_edge = (path[-1], f'cluster-right')
+        if end_edge not in unique_edges:
+            elements.append({'data': {'source': end_edge[0], 'target': end_edge[1]}, 'style': {'width': 3}})
+            unique_edges.add(end_edge)
+
     return elements
 
 def generate_cluster_inspection_graph_elements(accounts, df):

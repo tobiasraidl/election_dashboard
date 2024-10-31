@@ -4,13 +4,13 @@ import yaml
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import pandas as pd
+import os
 
 from callbacks.platform_view_callbacks import register_platform_view_callbacks
 
 dash.register_page(__name__, path='/cross-platform')
     
 df = pd.read_csv('data/cross_platform_posts.csv')
-
 image_details = dbc.Modal(
     [
         dbc.ModalHeader(dbc.ModalTitle("Image Details")),
@@ -21,7 +21,7 @@ image_details = dbc.Modal(
                         html.Div(id='image-details-text', className='top-left', style={'height': '100%', 'overflow': 'auto'}),
                         html.Div(
                             html.Img(
-                                src='https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png', 
+                                src='assets/placeholder.jpg', 
                                 style={
                                     'max-height': '200px', 
                                     'width': '100%', 
