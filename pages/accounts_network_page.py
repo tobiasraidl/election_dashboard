@@ -4,7 +4,7 @@ from dash import html, dcc, callback
 from dash.dependencies import Input, Output, State
 import networkx as nx
 from utils.accounts_network_graph_creation import create_accounts_graph, create_cluster_graph
-from utils.accounts_network_graph_elements import generate_cluster_graph_elements, generate_connection_graph_elements
+from utils.accounts_network_graph_elements import generate_cluster_graph_elements, generate_connection_graph_elements, generate_cluster_inspection_graph_elements
 import pandas as pd
 import dash_bootstrap_components as dbc
 import yaml
@@ -209,7 +209,6 @@ def update_layout(layout):
     prevent_initial_call=True
 )
 def toggle_cluster_inspection_modal(node_data, is_open):
-    print("test")
     if node_data:  # Only toggle if a node is clicked
         return not is_open
     return is_open
@@ -219,16 +218,8 @@ def toggle_cluster_inspection_modal(node_data, is_open):
     Input('cluster-graph', 'tapNodeData')
 )
 def update_cluster_inspection_graph(node_data):
-    print("test2")
     if node_data:
-        # Define elements based on node_data
-        elements = [
-            {'data': {'id': 'A', 'label': 'Node A'}, 'position': {'x': 50, 'y': 50}},
-            {'data': {'id': 'B', 'label': 'Node B'}, 'position': {'x': 150, 'y': 150}},
-            {'data': {'id': 'C', 'label': 'Node C'}, 'position': {'x': 250, 'y': 250}},
-            {'data': {'source': 'A', 'target': 'B'}},
-            {'data': {'source': 'B', 'target': 'C'}}
-        ]
+        elements = generate_cluster_inspection_graph_elements(node_data['accounts'], df)
         return elements
     return []
 

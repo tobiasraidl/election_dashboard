@@ -1,5 +1,7 @@
 from utils.accounts_network_graph_creation import query_clusters_by_min_size
 import networkx as nx
+import itertools
+import pandas as pd
 
 # min_deg: number between 100 and 200; all nodes with lower degree are ignored
 def generate_cluster_graph_elements(config, G_clusters, min_size):
@@ -146,4 +148,30 @@ def generate_connection_graph_elements(config, G_accounts, cluster1_details, clu
             'style': {'width': 1}
         })
     
+    return elements
+
+def generate_cluster_inspection_graph_elements(accounts, df):
+    # print(accounts)
+    # grouped = df.groupby('user_id')
+    # for (key1, row1), (key2, row2) in itertools.combinations(grouped, 2):
+    #     print(key1, key2)
+
+    filtered_df = df[df['user_id'].isin(accounts)]
+    merged = filtered_df.merge(df, on='hash')
+
+    # Filter out pairs where user_id_x >= user_id_y to avoid duplicate pairs and self-pairs
+    filtered = merged[merged['user_id_x'] < merged['user_id_y']]
+
+    # Group by (user_id_x, user_id_y) and count occurrences of each pair
+    result = filtered.groupby(['user_id_x', 'user_id_y']).size().reset_index(name='shared_hash_count')
+    result = result.sort_values(by='shared_hash_count')
+    elements = [
+        {'data': {'id': 'A', 'label': 'Node A'}, 'position': {'x': 50, 'y': 50}},
+        {'data': {'id': 'B', 'label': 'Node B'}, 'position': {'x': 150, 'y': 150}},
+        {'data': {'id': 'C', 'label': 'Node C'}, 'position': {'x': 250, 'y': 250}},
+        {'data': {'source': 'A', 'target': 'B'}},
+        {'data': {'source': 'B', 'target': 'C'}}
+    ]
+    
+    print(result)
     return elements
