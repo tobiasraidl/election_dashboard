@@ -5,8 +5,7 @@ def Navbar():
     return dbc.Container([
         dbc.NavbarSimple(
             children=[
-                dbc.NavItem(dbc.NavLink("Home", href="/")),
-                dbc.NavItem(dbc.NavLink("Accounts Network", href="/accounts-network")),
+                dbc.NavItem(dbc.NavLink("Accounts Network", href="/")),
                 dbc.NavItem(dbc.NavLink("Cross Platform", href="/cross-platform")),
                 dbc.DropdownMenu(
                     children=[
@@ -18,6 +17,7 @@ def Navbar():
                     in_navbar=True,
                     label="About",
                 ),
-            ]
+            ],
+            style={'width': '100%'}
         )
     ])

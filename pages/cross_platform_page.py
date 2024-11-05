@@ -10,7 +10,8 @@ from callbacks.platform_view_callbacks import register_platform_view_callbacks
 
 dash.register_page(__name__, path='/cross-platform')
 
-
+with open("config.yaml", "r") as file:
+    config = yaml.safe_load(file)
     
 df = pd.read_csv('data/cross_platform_posts.csv')
 image_details = dbc.Modal(
@@ -52,27 +53,22 @@ image_details = dbc.Modal(
     id="image-details",
     size="xl",
     is_open=False,
-    scrollable=True,
 )
 
 layout = dbc.Container(
     [
         dcc.Store(id='df-k-most-freq-hashes'),
         dbc.Row([
-
-            # html.Div(id="radio-buttons-error")
-        ]),
-        dbc.Row([
-            html.H4("Platform View", style={'text-align': 'center'}),
+            html.H4("Most shared images", style={'text-align': 'center'}),
             dbc.Col(
                 [
                     html.Div([
                         html.P('Filter images by platform'),
                         dbc.Checklist(
                             options=[
-                                {"label": "Twitter", "value": "Twitter"},
-                                {"label": "Instagram", "value": "Instagram"},
-                                {"label": "Facebook", "value": "Facebook"},
+                                {"label": html.Span("Twitter", style={"color": "white","backgroundColor": config["platform_color_map"]["Twitter"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Twitter"},
+                                {"label": html.Span("Instagram", style={"color": "white","backgroundColor": config["platform_color_map"]["Instagram"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Instagram"},
+                                {"label": html.Span("Facebook", style={"color": "white","backgroundColor": config["platform_color_map"]["Facebook"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Facebook"},
                             ],
                             id="switches",
                             value=["Twitter", "Instagram", "Facebook"],  # Default: all options are True
@@ -92,7 +88,7 @@ layout = dbc.Container(
             ),
             dbc.Col(
                 [
-                    dbc.Spinner(html.Div(id='bar-chart-wrapper')),
+                    html.Div(id='bar-chart-wrapper'),
                     image_details
                 ],
                 width="10", 

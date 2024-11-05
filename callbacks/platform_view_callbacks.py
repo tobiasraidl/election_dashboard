@@ -5,10 +5,8 @@ import dash
 from datetime import datetime
 import plotly.graph_objects as go
 import plotly.express as px
-import base64
-import os
 
-from utils.platform_view_graph import PlatformGraph, TimespanGraph
+from utils.image_loader import load_image
 
 def register_platform_view_callbacks(df):
     
@@ -20,6 +18,15 @@ def register_platform_view_callbacks(df):
         counts = most_shared_images.groupby(['hash', 'platform'])['platform'].count()
 
         df_temp = counts.unstack(fill_value=0)
+
+        df_temp['row_sum'] = df_temp.sum(axis=1)
+
+        # Sort the DataFrame by 'row_sum' in descending order
+        df_temp = df_temp.sort_values(by='row_sum', ascending=False)
+
+        # Optionally, drop the 'row_sum' column if it's no longer needed
+        df_temp = df_temp.drop(columns=['row_sum'])
+
 
         fig = go.Figure()
 
@@ -36,14 +43,38 @@ def register_platform_view_callbacks(df):
                 name=platform,
                 marker_color=platform_colors[platform]
             ))
+            
+        max_height = df_temp.sum(axis=1).max()  # Sum per row to get total height for stacked bars
+        desired_height = max_height * 1.5  # 50% more than the highest bar
 
         fig.update_layout(
             barmode='stack',
             # title="Most Shared Images by Platform",
-            xaxis_title="Image Hash",
+            xaxis_title="Image",
             yaxis_title="Times Shared",
-            xaxis={'categoryorder': 'total descending'},
+            yaxis=dict(range=[0, desired_height]),
+            showlegend=False,
+            # xaxis={'categoryorder': 'total descending'},
         )
+        fig.update_xaxes(showticklabels=False)
+        
+        # ADD IMAGES
+        sorted_hashes = df_temp.index.tolist()
+        for hash in sorted_hashes:
+            fig.add_layout_image(
+                dict(
+                    source=f'assets/{hash}.jpg',
+                    xref="x", yref="y",
+                    x=hash,                  # Match x-position with category
+                    y=desired_height - desired_height/6,           # Set y position above the bar, adjust the offset as needed
+                    xanchor="center",        # Center image on x-axis
+                    yanchor="bottom",        # Align image to the bottom on y-axis
+                    sizex=desired_height/6,                 # Adjust image size for visibility
+                    sizey=desired_height/6,
+                    sizing="contain",         # Maintain aspect ratio
+                    layer="above"
+                )
+            )
             
         bar_chart = dcc.Graph(figure=fig, id='bar-chart')
             
@@ -102,42 +133,6 @@ def register_platform_view_callbacks(df):
         # Fallback return in case something goes wrong
         return {}, None
     
-    # @callback(
-    #     [Output('df-k-most-freq-hashes', 'data'),
-    #      Output('bar-chart-wrapper', 'children')],
-    #      Input('config-store', 'data'),
-    #      allow_duplicate=True
-    # )
-    # def init_barchart(config):
-    #     # x ... 10 most shared images; y ... num of shares; stacked y and color ... platform
-    #     if config is not None:
-    #         most_shared_images_dict, bar_chart = gen_barchart(config, df)
-    #         return most_shared_images_dict, bar_chart
-    #     return {}
-    
-    # @callback(
-    #     [Output('df-k-most-freq-hashes', 'data'),
-    #      Output('bar-chart-wrapper', 'children')],
-    #     Input("switches", "value"),
-    #     State('config', 'data'),
-    #     prevent_initial_call=True,
-    #     allow_duplicate=True
-    # )
-    # def apply_filter_on_barchart(selected_values, current_values, config):
-    #     print(selected_values)
-    #     hash_platform_counts = df.groupby('hash')['platform'].apply(set)
-
-    #     # Keep only hashes that contain both 'Instagram' and 'Facebook' but exclude 'Twitter'
-    #     valid_hashes = hash_platform_counts[
-    #         hash_platform_counts.apply(lambda x: 'Instagram' in x and 'Facebook' in x and 'Twitter' not in x)
-    #     ].index
-
-    #     # Step 2: Filter the original dataframe to include only these valid hashes
-    #     filtered_df = df[df['hash'].isin(valid_hashes)]
-        
-    #     most_shared_images_dict, bar_chart = gen_barchart(config, filtered_df)
-    #     return most_shared_images_dict, bar_chart
-    
     @callback(
         [Output('image-details', 'is_open'),
          Output('image-timeline', 'figure'),
@@ -157,51 +152,55 @@ def register_platform_view_callbacks(df):
             df_one_hash = df[df['hash'] == selected_hash]
 
             # Sort data by timestamp to connect dots chronologically
+            # Sort by timestamp as before
+            # Sort by timestamp as before
             df_filtered = df_one_hash.sort_values(by='timestamp')
-
-            # Define the order of platforms
-            platform_order = ['Instagram', 'Facebook', 'Twitter']  # Change to your specific platform codes if different
-
-            # Convert platform to categorical type with a specific order
+            
+            # Dynamically get the unique platforms in the order they appear
+            platform_order = df_filtered['platform'].unique()
+            
+            # Convert platform to a categorical type with a dynamic order
             df_filtered['platform'] = pd.Categorical(df_filtered['platform'], categories=platform_order, ordered=True)
-
-            # Add a line trace with dark grey color connecting temporal succeeding dots (line comes first)
+            
+            # Add the line trace with dark grey color connecting temporal succeeding dots, hide legend
             fig_timeline = px.line(
                 df_filtered, 
                 x='timestamp', 
                 y='platform',  # Use platform directly (no jitter)
                 line_shape='linear',
-                title=f'Image Share Timeline',
-            ).update_traces(line_color='darkgrey')
-
-            # Now add the scatter plot on top (for bigger dots and color by platform)
+                title='Image Share Timeline',
+            ).update_traces(line_color='darkgrey', showlegend=False)  # Hide legend for line
+            
+            # Add the scatter plot on top, hide legend
             scatter_fig = px.scatter(
                 df_filtered,
                 x='timestamp',             # Time of the post
                 y='platform',              # Use platform directly (no jitter)
                 color='platform',          # Color each point by platform (Instagram, Facebook, Twitter)
                 color_discrete_map={
-                    'Facebook': config['platform_color_map']['Facebook'],
-                    'Instagram': config['platform_color_map']['Instagram'],
-                    'Twitter': config['platform_color_map']['Twitter'],
+                    'Facebook': config['platform_color_map'].get('Facebook', 'blue'),  # Default to blue if color not found
+                    'Instagram': config['platform_color_map'].get('Instagram', 'purple'),  # Default to purple
+                    'Twitter': config['platform_color_map'].get('Twitter', 'cyan'),  # Default to cyan
                 },
                 hover_data=['img_id', 'party', 'name'],  # Additional hover data
                 labels={'platform': 'Platform'},
                 height=600,
                 width=1000
-            ).update_traces(marker=dict(size=12))  # Increase marker size here
-
+            ).update_traces(marker=dict(size=12), showlegend=False)  # Increase marker size and hide legend
+            
             # Combine the two plots: Line first, dots on top
             fig_timeline.add_traces(scatter_fig.data)
-
-            # Update layout for better readability
+            
+            # Update layout with dynamic tick values
             fig_timeline.update_layout(
                 yaxis_title='Platform',
-                yaxis=dict(tickvals=list(range(len(platform_order))), ticktext=platform_order),  # Set y-ticks to fixed order
+                yaxis=dict(tickvals=list(range(len(platform_order))), ticktext=platform_order),  # Dynamically set y-ticks
                 xaxis_title='Time',
                 legend_title='Platform',
                 hovermode='closest',
             )
+            
+
             
             party_ratios = df_one_hash['party'].value_counts()
             
@@ -219,14 +218,7 @@ def register_platform_view_callbacks(df):
                 html.P(f"Times Shared: {df_one_hash.shape[0]}"),
             ]
             
-            imgfile = f'images/{image_hash_clicked}.jpg'
-            if os.path.exists(imgfile):
-                with open(imgfile, "rb") as image_file:
-                    img_data = base64.b64encode(image_file.read())
-                    img_data = img_data.decode()
-                    img_data = "{}{}".format("data:image/jpg;base64, ", img_data)
-            else:
-                img_data = 'assets/placeholder.jpg'
+            img_data = load_image(image_hash_clicked)
 
             
             return True, fig_timeline, image_details_text, fig_party_ratios, img_data

@@ -166,28 +166,33 @@ def generate_connection_graph_elements(config, G_accounts, cluster1_details, clu
 
     return elements
 
-def generate_cluster_inspection_graph_elements(accounts, df):
-    # print(accounts)
-    # grouped = df.groupby('user_id')
-    # for (key1, row1), (key2, row2) in itertools.combinations(grouped, 2):
-    #     print(key1, key2)
+# min_same_shared_images is the amount of same images two accounts need to have shared in order to display the edge
+def generate_cluster_inspection_graph_elements(accounts, df, config, min_same_shared_images=1):
 
     filtered_df = df[df['user_id'].isin(accounts)]
-    merged = filtered_df.merge(df, on='hash')
+    merged = filtered_df.merge(filtered_df, on='hash')
 
     # Filter out pairs where user_id_x >= user_id_y to avoid duplicate pairs and self-pairs
     filtered = merged[merged['user_id_x'] < merged['user_id_y']]
 
     # Group by (user_id_x, user_id_y) and count occurrences of each pair
-    result = filtered.groupby(['user_id_x', 'user_id_y']).size().reset_index(name='shared_hash_count')
-    result = result.sort_values(by='shared_hash_count')
-    elements = [
-        {'data': {'id': 'A', 'label': 'Node A'}, 'position': {'x': 50, 'y': 50}},
-        {'data': {'id': 'B', 'label': 'Node B'}, 'position': {'x': 150, 'y': 150}},
-        {'data': {'id': 'C', 'label': 'Node C'}, 'position': {'x': 250, 'y': 250}},
-        {'data': {'source': 'A', 'target': 'B'}},
-        {'data': {'source': 'B', 'target': 'C'}}
-    ]
+    edges_df = filtered.groupby(['user_id_x', 'user_id_y']).size().reset_index(name='shared_hash_count')
+    edges_df = edges_df.sort_values(by='shared_hash_count')
     
-    print(result)
+    elements = []
+    for account in accounts:
+        acc_row = df[df['user_id'] == account].iloc[0]
+        elements.append({
+            'data': {'id': str(account), 'name': str(acc_row['name']), 'party': str(acc_row['party'])},
+            'style': {'backgroundColor': config["party_color_map"][acc_row['party']]}, 
+        })
+    edges_df = edges_df[edges_df['shared_hash_count'] >= min_same_shared_images]
+    for _, row in edges_df.iterrows():
+        elements.append({
+            'data': {'source': str(row['user_id_x']), 'target': str(row['user_id_y']), 'weight': row['shared_hash_count']},
+            'style': {
+                'width': 1,
+                'opacity': row['shared_hash_count'] / edges_df['shared_hash_count'].max()
+            }
+        })
     return elements
