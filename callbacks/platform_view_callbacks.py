@@ -2,9 +2,9 @@ from dash.dependencies import Input, Output, State
 from dash import callback, Output, Input, State, callback_context, dcc, html
 import pandas as pd
 import dash
-from datetime import datetime
 import plotly.graph_objects as go
 import plotly.express as px
+import os
 
 from utils.image_loader import load_image
 
@@ -38,47 +38,49 @@ def register_platform_view_callbacks(df):
 
         for platform in df_temp.columns:
             fig.add_trace(go.Bar(
-                x=df_temp.index,
+                x=df_temp.index,  # Use the number list as x-axis values
                 y=df_temp[platform],
                 name=platform,
                 marker_color=platform_colors[platform]
             ))
-            
-        max_height = df_temp.sum(axis=1).max()  # Sum per row to get total height for stacked bars
-        desired_height = max_height * 1.5  # 50% more than the highest bar
 
         fig.update_layout(
             barmode='stack',
-            # title="Most Shared Images by Platform",
-            xaxis_title="Image",
+            xaxis_title="Image Number",
             yaxis_title="Times Shared",
-            yaxis=dict(range=[0, desired_height]),
             showlegend=False,
-            # xaxis={'categoryorder': 'total descending'},
+            xaxis=dict(showticklabels=False)
         )
         fig.update_xaxes(showticklabels=False)
-        
-        # ADD IMAGES
-        sorted_hashes = df_temp.index.tolist()
-        for hash in sorted_hashes:
-            fig.add_layout_image(
-                dict(
-                    source=f'assets/{hash}.jpg',
-                    xref="x", yref="y",
-                    x=hash,                  # Match x-position with category
-                    y=desired_height - desired_height/6,           # Set y position above the bar, adjust the offset as needed
-                    xanchor="center",        # Center image on x-axis
-                    yanchor="bottom",        # Align image to the bottom on y-axis
-                    sizex=desired_height/6,                 # Adjust image size for visibility
-                    sizey=desired_height/6,
-                    sizing="contain",         # Maintain aspect ratio
-                    layer="above"
-                )
-            )
+
+        # Prepare images under the bars
+        image_elements = []
+        placeholder_image = './assets/placeholder.jpg'  # Placeholder image path
+        image_width = '4%'  # Set a smaller fixed width for all images (adjusted here)
+
+        for hash in df_temp.index:
+            image_path = f'./assets/{hash}.jpg'  # Path to your image files
+            # Check if the image exists
+            if not os.path.exists(f'./assets/{hash}.jpg'):
+                image_path = placeholder_image  # Use placeholder if not found
+                
+            image_elements.append(html.Img(src=image_path, style={'width': image_width, 'height': 'auto', 'object-fit': 'contain', 'display': 'block', 'margin': '0 auto'}))
             
+        # Create the layout with the bar chart and images
         bar_chart = dcc.Graph(figure=fig, id='bar-chart')
-            
-        return most_shared_images.to_dict(), bar_chart
+
+        return most_shared_images.to_dict(), html.Div([
+            bar_chart,
+            html.Div(image_elements, 
+                style={
+                        'display': 'flex', 
+                        'justify-content': 'space-between',
+                        'padding-left': '80px',  # Adjust how far right the images start
+                        'padding-right': '80px',  # Adjust how far left the images end
+                        'padding-bottom': '80px',
+                }
+            )
+        ])
     
     @callback(
         [Output('df-k-most-freq-hashes', 'data'),
@@ -88,29 +90,9 @@ def register_platform_view_callbacks(df):
         # State('config-store', 'data'),
     )
     def update_bar_chart(config_data, selected_values):
-        ctx = callback_context
-        if not ctx.triggered:
-            # This is the first callback functionality (init_barchart)
-            if config_data is not None:
-                most_shared_images_dict, bar_chart = gen_barchart(config_data, df)
-                return most_shared_images_dict, bar_chart
-            return {}, None
-
-        # Get the id of the triggered input
-        triggered_input = ctx.triggered[0]["prop_id"].split(".")[0]
-
-        if triggered_input == "config-store":
-            # This is the first callback functionality (init_barchart)
-            if len(selected_values) < 2:
-                return {}, html.P('Select at least two platforms')
-            if config_data is not None:
-                most_shared_images_dict, bar_chart = gen_barchart(config_data, df)
-                return most_shared_images_dict, bar_chart
-            return {}, None
-
-        elif triggered_input == "switches":
-            if len(selected_values) < 2:
-                return {}, html.P('Select at least two platforms')
+        if len(selected_values) < 2:
+            return {}, html.P('Select at least two platforms')
+        if config_data is not None:
             # This is the second callback functionality (enforce_two_switches)
             hash_platform_counts = df.groupby('hash')['platform'].apply(set)
 
@@ -126,7 +108,6 @@ def register_platform_view_callbacks(df):
 
             # Step 2: Filter the original dataframe to include only these valid hashes
             filtered_df = df[df['hash'].isin(valid_hashes)]
-        
             most_shared_images_dict, bar_chart = gen_barchart(config_data, filtered_df)
             return most_shared_images_dict, bar_chart
 

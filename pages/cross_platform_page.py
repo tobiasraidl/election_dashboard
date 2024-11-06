@@ -62,29 +62,35 @@ layout = dbc.Container(
             html.H4("Most shared images", style={'text-align': 'center'}),
             dbc.Col(
                 [
-                    html.Div([
-                        html.P('Filter images by platform'),
-                        dbc.Checklist(
-                            options=[
-                                {"label": html.Span("Twitter", style={"color": "white","backgroundColor": config["platform_color_map"]["Twitter"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Twitter"},
-                                {"label": html.Span("Instagram", style={"color": "white","backgroundColor": config["platform_color_map"]["Instagram"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Instagram"},
-                                {"label": html.Span("Facebook", style={"color": "white","backgroundColor": config["platform_color_map"]["Facebook"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Facebook"},
-                            ],
-                            id="switches",
-                            value=["Twitter", "Instagram", "Facebook"],  # Default: all options are True
-                            switch=True
-                        ),
-                        dbc.Alert("Select at least two platforms.", color="secondary"),
-                    ], style={
-                            'display': 'flex',
-                            'flex-direction': 'column',
-                            'justify-content': 'center',
-                            'align-items': 'center',
-                            'height': '400px'
-                        })
+                    dbc.Card([
+                        dbc.CardBody([
+                            
+                            html.Div([
+                                html.P('This bar chart shows the 20 most shared images across platforms. Click on a bar for more details about the image.'),
+                                html.P('Filter images by selecting at least two platforms:'),
+                                dbc.Checklist(
+                                    options=[
+                                        {"label": html.Span("Twitter", style={"color": "white","backgroundColor": config["platform_color_map"]["Twitter"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Twitter"},
+                                        {"label": html.Span("Instagram", style={"color": "white","backgroundColor": config["platform_color_map"]["Instagram"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Instagram"},
+                                        {"label": html.Span("Facebook", style={"color": "white","backgroundColor": config["platform_color_map"]["Facebook"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Facebook"},
+                                    ],
+                                    id="switches",
+                                    value=["Twitter", "Instagram", "Facebook"],  # Default: all options are True
+                                    switch=True
+                                ),
+                            ], style={
+                                    'display': 'flex',
+                                    'flex-direction': 'column',
+                                    'justify-content': 'center',
+                                    'align-items': 'center',
+                                    'height': '400px'
+                            })
+                            ])
+                    ])
                 ],
                 width='2',
-                className='mb-3'
+                className='mb-3',
+                style={'display': 'flex', 'align-items': 'center'}
             ),
             dbc.Col(
                 [
