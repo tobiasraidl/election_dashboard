@@ -47,3 +47,6 @@ reason: twitter not found (because never posted on twitter)
 [x] on initial page load the top 20 most shard images show independent on the num of platforms posted on -> when unselecting and reselecting a switch top 20 with strictly 3 platforms are shown
 
 [ ] on cluster click sometimes the nodes in cluster inspection are not correct color
+
+
+245996298916180 370422547208084 bei generate_cluster_inspection_graph_elements 3 same images posted, aber nur 2 werden angezeigt

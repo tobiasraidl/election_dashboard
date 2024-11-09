@@ -19,7 +19,7 @@ app.layout = html.Div(
         Navbar(),
         # Content of each page
         dash.page_container
-    ]
+    ],
 )
 
 @app.callback(

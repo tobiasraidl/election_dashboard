@@ -199,7 +199,7 @@ layout = dbc.Container(
                     width="8", 
                     className="mb-3",
                 ),
-                dbc.Col(
+                dbc.Col(dbc.Card(dbc.CardBody(
                     [
                         dbc.Row([slider_element], align="center", className="m-3"),
                         dbc.Row([dbc.Col([select_label_element]), dbc.Col([select_element])], align="center", className="m-3"),
@@ -211,7 +211,7 @@ layout = dbc.Container(
                             'This View only includes accounts with known party affiliation.',
                             className='p-3')
                         ])
-                    ],
+                    ])),
                     width="4"
                 ),
             ]
@@ -267,6 +267,41 @@ def update_cluster_inspection_graph(node_data, slider_value):
         return elements, 'Click a node to see its details or an edge to see the both accounts shared.'
     return [], 'Click a node to see its details or an edge to see the both accounts shared.'
 
+# @callback(
+#     [
+#         Output('cluster-inspection-graph-modal', 'is_open'),
+#         Output('cluster-inspection-graph', 'elements'),
+#         Output("cluster-inspection-graph-node-info", "children")
+#     ],
+#     [
+#         Input('cluster-graph', 'tapNodeData'),        # Node click on main graph to open modal
+#         Input("cluster-inspection-slider", "value")   # Slider adjustment for graph filtering
+#     ],
+#     State('cluster-inspection-graph-modal', 'is_open'),
+#     prevent_initial_call=True
+# )
+# def toggle_and_update_modal(node_data, slider_value, is_open):
+#     # Check if a node is clicked in the main graph to toggle modal open
+#     if node_data:
+#         # Generate elements for inspection graph based on node_data and slider
+#         elements = generate_cluster_inspection_graph_elements(
+#             node_data['accounts'], df, config, min_same_shared_images=slider_value
+#         )
+#         # Set initial message for node info
+#         node_info = 'Click a node to see its details or an edge to see the images both accounts shared.'
+#         return not is_open, elements, node_info
+
+#     # If slider is adjusted and modal is already open, update the inspection graph elements
+#     elif is_open and slider_value is not None:
+#         # Use existing node_data to regenerate elements with the updated slider value
+#         elements = generate_cluster_inspection_graph_elements(
+#             node_data['accounts'], df, config, min_same_shared_images=slider_value
+#         )
+#         return is_open, elements, dash.no_update  # Keep modal open, update elements only
+
+#     # Default: No changes if no node click or slider input
+#     return is_open, dash.no_update, dash.no_update
+
 @callback(
     Output("cluster-inspection-graph-node-info", "children", allow_duplicate=True),
     Input("cluster-inspection-graph", "tapNodeData"),
@@ -297,7 +332,6 @@ def display_cluster_inspection_graph_edge_info(edge_data):
     # Find the intersection of the two sets
     common_hashes = list(hashes_user_1.intersection(hashes_user_2))
     return generate_image_grid(common_hashes)
-    # return "Nice"
 
 @callback(
     [

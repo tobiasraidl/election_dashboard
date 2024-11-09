@@ -171,12 +171,16 @@ def generate_cluster_inspection_graph_elements(accounts, df, config, min_same_sh
 
     filtered_df = df[df['user_id'].isin(accounts)]
     merged = filtered_df.merge(filtered_df, on='hash')
-
+    
     # Filter out pairs where user_id_x >= user_id_y to avoid duplicate pairs and self-pairs
     filtered = merged[merged['user_id_x'] < merged['user_id_y']]
+    
+    # Ensure the hash column is retained
+    filtered = filtered[['user_id_x', 'user_id_y', 'hash'] + [col for col in filtered.columns if col not in ['user_id_x', 'user_id_y', 'hash']]]
 
     # Group by (user_id_x, user_id_y) and count occurrences of each pair
-    edges_df = filtered.groupby(['user_id_x', 'user_id_y']).size().reset_index(name='shared_hash_count')
+    edges_df = filtered.groupby(['user_id_x', 'user_id_y'])['hash'].nunique().reset_index(name='shared_hash_count')
+
     edges_df = edges_df.sort_values(by='shared_hash_count')
     
     elements = []
@@ -184,7 +188,7 @@ def generate_cluster_inspection_graph_elements(accounts, df, config, min_same_sh
         acc_row = df[df['user_id'] == account].iloc[0]
         elements.append({
             'data': {'id': str(account), 'name': str(acc_row['name']), 'party': str(acc_row['party'])},
-            'style': {'backgroundColor': config["party_color_map"][acc_row['party']]}, 
+            'style': {'background-color': config["party_color_map"][acc_row['party']]}, 
         })
     edges_df = edges_df[edges_df['shared_hash_count'] >= min_same_shared_images]
     for _, row in edges_df.iterrows():
