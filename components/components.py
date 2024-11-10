@@ -3,27 +3,6 @@ from dash import html, dcc, callback
 from dash.dependencies import Input, Output, State
 
 def Navbar():
-    
-    # return dbc.Container([
-    #     dbc.NavbarSimple(
-    #         children=[
-    #             dbc.NavItem(dbc.NavLink("Accounts Network", href="/")),
-    #             dbc.NavItem(dbc.NavLink("Cross Platform", href="/cross-platform")),
-    #             dbc.DropdownMenu(
-    #                 children=[
-    #                     dbc.DropdownMenuItem("About", header=True),
-    #                     dbc.DropdownMenuItem("Author", href="https://www.linkedin.com/in/tobias-raidl/", target="_blank"),
-    #                     dbc.DropdownMenuItem("PolarVis", href="https://polarvis.github.io/", target="_blank"),
-    #                 ],
-    #                 nav=True,
-    #                 in_navbar=True,
-    #                 label="About",
-    #             ),
-    #         ],
-    #         style={'width': '100%'}
-    #     )
-    # ])
-    
     navbar = dbc.Navbar(
         dbc.Container(
             [
@@ -34,6 +13,7 @@ def Navbar():
                         # Page links
                         dbc.NavItem(dbc.NavLink("Cross-Party Partisans", href="/")),
                         dbc.NavItem(dbc.NavLink("Platform Dissemination", href="/cross-platform")),
+                        dbc.NavItem(dbc.NavLink("network_v2", href="/network_v2")),
 
                         # Dropdown for "About"
                         dbc.DropdownMenu(

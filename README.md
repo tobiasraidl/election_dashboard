@@ -17,7 +17,10 @@ All datasets in data/ are transformations of data/original_posts.csv which are g
     2. downscale all the relevant images
     3. implement as i did in the prototype
 
-[ ] Better navbar
+[x] Better navbar
+
+[ ] network_v2 new try of network graph: node -> account; edge -> weighted (weight=num same imgs shared); slider to select min of same shared images to allow edge (dont show nodes with deg=0)
+bug right now: one row is one node
 
 ##### Technical TODOS: 
 [x] prefilter the all_posts.csv dataframe (e.g. only include rows that are used -> 2dfs: for platform only ones that have at least same hash; for accs only that have party and same)
