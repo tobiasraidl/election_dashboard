@@ -26,8 +26,20 @@ def generate_image_grid(image_hashes):
         # Create a row with up to two columns (images)
         row = dbc.Row(
             [
-                dbc.Col(html.Img(src=image_urls[i], style={'width': '100%', 'height': '180px', 'object-fit': 'cover'}), width=6),
-                dbc.Col(html.Img(src=image_urls[i + 1], style={'width': '100%', 'height': '180px', 'object-fit': 'cover'}), width=6) if i + 1 < len(image_urls) else None
+                dbc.Col(
+                    html.Img(
+                        src=image_urls[i],
+                        style={'width': '100%', 'height': 'auto', 'object-fit': 'contain'}
+                    ),
+                    width=6
+                ),
+                dbc.Col(
+                    html.Img(
+                        src=image_urls[i + 1], 
+                        style={'width': '100%', 'height': 'auto', 'object-fit': 'contain'}
+                    ),
+                    width=6
+                ) if i + 1 < len(image_urls) else None
             ],
             className="mb-3"
         )

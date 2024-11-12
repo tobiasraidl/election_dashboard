@@ -20,7 +20,7 @@ class AccountGraph:
         # Create a dictionary to count shared images between user pairs
         image_shares = defaultdict(lambda: defaultdict(int))
 
-        accs_num_posts = self.df['user_id'].value_counts()
+        accs_img_hashes = self.df.groupby('user_id')['hash'].apply(list).to_dict()
         party_affiliations = pd.Series(self.df.party.values, index=self.df.user_id).to_dict()
         
         # Populate the dictionary with shared images
@@ -29,7 +29,7 @@ class AccountGraph:
             image_hash = row['hash']
             # Add the user to the graph (if not already added)
             if user_id not in G:
-                G.add_node(user_id, party=row['party'], num_posts=accs_num_posts.get(user_id, 0))
+                G.add_node(user_id, name=row['name'], party=row['party'], img_hashes=accs_img_hashes.get(user_id, []), num_posts=len(accs_img_hashes.get(user_id, [])))
 
             # Increment shared image count between pairs of users
             for _, other_row in self.df[self.df['hash'] == image_hash].iterrows():
@@ -49,17 +49,14 @@ class AccountGraph:
                     G.add_edge(user1, user2, weight=weight, cross_party=cross_party)
         return G
     
-    def gen_init_cytoscape_elements_as_json(self):
-        # calc positions
-
-        
-        pass
+    def get_G(self):
+        return self.G
 
     # parties ... Array of strings. values can include any of the parties defined in the config file; if None -> all parties
     # iterations ... 50 to 100 -> lower is faster but higher is better looking layout
     # highlight_cross_party_connections ... If True highlights edges that connect accounts affilliated to different parties
     # element_list_path ... loads pre-calculated elements list instead of generating new ()
-    def gen_cytoscape_elements(self, min_same_imgs_shared=1, parties=None, iterations=100, highlight_cross_party_connections=False, element_list_path=None):
+    def gen_cytoscape_elements(self, min_same_imgs_shared=1, parties=None, highlight_cross_party_connections=False, iterations=100, k=0.2, element_list_path=None):
         save_as_initial_element_list = False
         # Load json
         if element_list_path != None:
@@ -84,7 +81,7 @@ class AccountGraph:
         nodes_with_edges = [node for node, degree in filtered_graph.degree() if degree > 0]
         filtered_graph = filtered_graph.subgraph(nodes_with_edges)
         
-        positions = nx.spring_layout(filtered_graph, k=0.2, iterations=iterations)
+        positions = nx.spring_layout(filtered_graph, k=k, iterations=iterations)
         # positions = nx.kamada_kawai_layout(filtered_graph)
         # positions = nx.fruchterman_reingold_layout(filtered_graph)
         

@@ -25,7 +25,7 @@ account_graph_element = dbc.Spinner(
     children=cyto.Cytoscape(
         id='account-graph',
         layout={'name': 'preset'},
-        style={'width': '100%', 'height': '600px', "background-color": "#121212", "border-radius": "15px"},
+        style={'width': '100%', 'height': '750px', "background-color": "#121212", "border-radius": "15px"},
         elements=account_graph.gen_cytoscape_elements(element_list_path="data/outputs/init_account_network_elements.json"),
     )
 )
@@ -45,9 +45,10 @@ min_same_imgs_shared_slider = html.Div([
 
 party_filter_col1_element = dbc.Checklist(
     options=[
-        {"label": "AFD", "value": "afd"},
-        {"label": "SPD", "value": "spd"},
-        {"label": "Die Grünen", "value": "die_gruenen"},
+        # {"label": html.Span("Twitter", style={"color": "white","backgroundColor": config["platform_color_map"]["Twitter"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Twitter"},
+        {"label": html.Span("AFD", style={"color": "white","backgroundColor": config["party_color_map"]["afd"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "afd"},
+        {"label": html.Span("SPD", style={"color": "white","backgroundColor": config["party_color_map"]["spd"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "spd"},
+        {"label": html.Span("Die Grünen", style={"color": "white","backgroundColor": config["party_color_map"]["die_gruenen"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "die_gruenen"},
     ],
     value=["afd", "spd", "die_gruenen"],
     id="party-filter-checklist-col2",
@@ -56,9 +57,9 @@ party_filter_col1_element = dbc.Checklist(
 
 party_filter_col2_element = dbc.Checklist(
     options=[
-        {"label": "Die Linke", "value": "die_linke"},
-        {"label": "CDU/CSU", "value": "cdu_csu"},
-        {"label": "FDP", "value": "fdp"}
+        {"label": html.Span("Die Linke", style={"color": "white","backgroundColor": config["party_color_map"]["die_linke"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "die_linke"},
+        {"label": html.Span("CDU/CSU", style={"color": "white","backgroundColor": config["party_color_map"]["cdu_csu"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "cdu_csu"},
+        {"label": html.Span("FDP", style={"color": "white","backgroundColor": config["party_color_map"]["fdp"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "fdp"}
     ],
     value=["die_linke", "cdu_csu", "fdp"],
     id="party-filter-checklist-col1",
@@ -90,10 +91,56 @@ highlight_cross_party_connections_toggle_element = html.Div([
     ])
 ])
 
+iterations_tooltip = html.Div([
+    # Create an info icon
+    html.Span(
+        "ℹ️",  # Unicode symbol for info icon, or use dbc.Icon("info-circle") for a different style
+        id="info-icon",
+        style={"cursor": "pointer", "fontSize": "20px", "marginLeft": "10px"}
+    ),
+    
+    # Tooltip for the info icon
+    dbc.Tooltip(
+        [
+            "Low -> Faster",
+            html.Br(),
+            "High -> Better layout quality",
+            html.Br(),
+            "Select the iterations of the Fruchterman-Reingold force-directed algorithm which produces the node positions."
+        ],
+        target="info-icon",
+        placement="right"  # Position of the tooltip (top, right, bottom, left)
+    )
+])
+
+iterations_slider_element = html.Div([
+    dbc.Row([
+        dbc.Col(html.P(["Iterations:", iterations_tooltip], style={"display": "flex", "alignItems": "center"}), width=4),
+        dbc.Col(
+            dcc.Slider(
+                20, 100, 10,
+                value=100,
+                id="iteration-slider"
+            ), width=8
+        )
+    ])
+])
+
+k_slider_element = html.Div([
+    dbc.Row([
+        dbc.Col(html.P("Optimal Node Distance:"), width=4),
+        dbc.Col(
+            dcc.Slider(
+                0.05, 0.2, 0.05,
+                value=0.15,
+                id="k-slider"
+            ), width=8
+        )
+    ])
+])
+
 layout = html.Div(
     style={
-        # 'backgroundColor': '#333333',
-        # 'color': '#FFFFFF',
         'height': '100vh',
     },
     children=dbc.Container(
@@ -104,11 +151,19 @@ layout = html.Div(
                 ],width=8),
                 dbc.Col([
                     dbc.Card([
-                            dbc.Row(min_same_imgs_shared_slider, className='mb-3'),
-                            dbc.Row(party_filter_element, className='mb-3'),
-                            dbc.Row(highlight_cross_party_connections_toggle_element),
-                        
-                    ], body=True, className="mb-3", style={'background-color': '#121212', 'border-radius': '15px'})
+                        dbc.CardBody([
+                            dbc.Row(min_same_imgs_shared_slider, className='mb-3 mt-3 mx-3'),
+                            dbc.Row(highlight_cross_party_connections_toggle_element, className='mb-3 mx-3'),
+                            dbc.Row(party_filter_element, className='mb-3 mx-3'),
+                            # html.Hr(style={"borderTop": "1px solid #ccc", "margin": "20px 0"}, className='mb-5 mt-5'),
+                            dbc.Row(k_slider_element, className='mb-3 mx-3'),
+                            dbc.Row(iterations_slider_element, className='mb-3 mx-3'),
+                            dbc.Row(dbc.Button("Apply", id="apply-button", color="primary"), justify='center', className="mx-3 mb-3"),
+                        ]),
+                    ], className="mb-3", style={'background-color': '#121212', 'border-radius': '15px'}),
+                    dbc.Card([
+                        html.P('Click on a node or an edge for details.')    
+                    ], id='on-click-output-card', body=True, style={'background-color': '#121212', 'border-radius': '15px'})
                 ],width=4)
             ])
         ],

@@ -70,9 +70,9 @@ layout = dbc.Container(
                                 html.P('Filter images by selecting at least two platforms:'),
                                 dbc.Checklist(
                                     options=[
-                                        {"label": html.Span("Twitter", style={"color": "white","backgroundColor": config["platform_color_map"]["Twitter"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Twitter"},
-                                        {"label": html.Span("Instagram", style={"color": "white","backgroundColor": config["platform_color_map"]["Instagram"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Instagram"},
-                                        {"label": html.Span("Facebook", style={"color": "white","backgroundColor": config["platform_color_map"]["Facebook"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Facebook"},
+                                        {"label": html.Span("Twitter", style={"color": "white","backgroundColor": config["platform_color_map"]["Twitter"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "Twitter"},
+                                        {"label": html.Span("Instagram", style={"color": "white","backgroundColor": config["platform_color_map"]["Instagram"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "Instagram"},
+                                        {"label": html.Span("Facebook", style={"color": "white","backgroundColor": config["platform_color_map"]["Facebook"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "Facebook"},
                                     ],
                                     id="switches",
                                     value=["Twitter", "Instagram", "Facebook"],  # Default: all options are True
