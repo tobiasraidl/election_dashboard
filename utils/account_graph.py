@@ -31,22 +31,36 @@ class AccountGraph:
             if user_id not in G:
                 G.add_node(user_id, name=row['name'], party=row['party'], img_hashes=accs_img_hashes.get(user_id, []), num_posts=len(accs_img_hashes.get(user_id, [])))
 
-            # Increment shared image count between pairs of users
-            for _, other_row in self.df[self.df['hash'] == image_hash].iterrows():
-                other_user_id = other_row['user_id']
-                if user_id != other_user_id:
-                    image_shares[user_id][other_user_id] += 1
+        #     # Increment shared image count between pairs of users
+        #     for _, other_row in self.df[self.df['hash'] == image_hash].iterrows():
+        #         other_user_id = other_row['user_id']
+        #         if (user_id > other_user_id) and (user_id != other_user_id):
+        #             image_shares[user_id][other_user_id] += 1
+        
+        # # Add edges to the graph based on shared images
+        # for user1, connections in image_shares.items():
+        #     for user2, weight in connections.items():
+        #         if G.has_edge(user1, user2):
+        #             # If edge exists, update weight (i.e., increment shared image count)
+        #             G[user1][user2]['weight'] += weight
+        #         else:
+        #             # If no edge exists, create a new one with the weight (number of shared images)
+        #             cross_party = party_affiliations[user1] != party_affiliations[user2]
+        #             G.add_edge(user1, user2, weight=weight, cross_party=cross_party)
+        
+        for node1, node2 in combinations(G.nodes, 2):
+            # Get the hashes of each node
+            hashes1 = set(G.nodes[node1]["img_hashes"])
+            hashes2 = set(G.nodes[node2]["img_hashes"])
 
-        # Add edges to the graph based on shared images
-        for user1, connections in image_shares.items():
-            for user2, weight in connections.items():
-                if G.has_edge(user1, user2):
-                    # If edge exists, update weight (i.e., increment shared image count)
-                    G[user1][user2]['weight'] += weight
-                else:
-                    # If no edge exists, create a new one with the weight (number of shared images)
-                    cross_party = party_affiliations[user1] != party_affiliations[user2]
-                    G.add_edge(user1, user2, weight=weight, cross_party=cross_party)
+            # Find the common hashes
+            common_hashes = hashes1.intersection(hashes2)
+
+            # If there are common hashes, add an edge with weight equal to the number of common hashes
+            if common_hashes:
+                cross_party = party_affiliations[node1] != party_affiliations[node2]
+                G.add_edge(node1, node2, weight=len(common_hashes), cross_party=cross_party)
+        
         return G
     
     def get_G(self):

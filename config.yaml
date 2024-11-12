@@ -1,13 +1,16 @@
 party_color_map:
-  afd: "#009EE0"      # Blue (AfD)
-  spd: "#EB001F"      # Red (SPD)
-  die_gruenen: "#64A12D"   # Green (Bündnis 90/Die Grünen)
-  die_linke: "#BE3075"    # Magenta (Die Linke)
-  cdu_csu: "#b0b0b0" #"#000000"      # Black (CDU)
-  fdp: "#bfa50f"      # Yellow (FDP)
+  afd: "#3135ad"      # Blue (AfD)
+  spd: "#993129"      # Red (SPD)
+  die_gruenen: "#3e872f"   # Green (Bündnis 90/Die Grünen)
+  die_linke: "#8a2286"    # Magenta (Die Linke)
+  cdu_csu: "#949494" #"#000000"      # Black (CDU)
+  fdp: "#a88d32"      # Yellow (FDP)
   unknown: "#404040"  # Grey (Unknown)
 
 platform_color_map:
   Facebook: "#4267B2"
   Instagram: "#E4405F"
   Twitter: "#1DA1F2"
+
+style:
+  foreground_color: "#121212"

@@ -94,7 +94,7 @@ layout = dbc.Container(
             ),
             dbc.Col(
                 [
-                    html.Div(id='bar-chart-wrapper'),
+                    html.Div(id='bar-chart-wrapper', style={"border-radius": "15px", "background-color": config['style']['foreground_color'], "padding-top": "15px"}),
                     image_details
                 ],
                 width="10", 

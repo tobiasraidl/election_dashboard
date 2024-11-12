@@ -41,15 +41,18 @@ def register_platform_view_callbacks(df):
                 x=df_temp.index,  # Use the number list as x-axis values
                 y=df_temp[platform],
                 name=platform,
-                marker_color=platform_colors[platform]
+                marker_color=platform_colors[platform],
             ))
 
         fig.update_layout(
+            template='plotly_dark',
             barmode='stack',
-            xaxis_title="Image Number",
+            xaxis_title="Image",
             yaxis_title="Times Shared",
             showlegend=False,
-            xaxis=dict(showticklabels=False)
+            xaxis=dict(showticklabels=False),
+            plot_bgcolor=config['style']['foreground_color'],
+            paper_bgcolor=config['style']['foreground_color'],
         )
         fig.update_xaxes(showticklabels=False)
 

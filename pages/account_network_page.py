@@ -25,7 +25,7 @@ account_graph_element = dbc.Spinner(
     children=cyto.Cytoscape(
         id='account-graph',
         layout={'name': 'preset'},
-        style={'width': '100%', 'height': '750px', "background-color": "#121212", "border-radius": "15px"},
+        style={'width': '100%', 'height': '750px', "background-color": config['style']['foreground_color'], "border-radius": "15px"},
         elements=account_graph.gen_cytoscape_elements(element_list_path="data/outputs/init_account_network_elements.json"),
     )
 )
@@ -160,10 +160,10 @@ layout = html.Div(
                             dbc.Row(iterations_slider_element, className='mb-3 mx-3'),
                             dbc.Row(dbc.Button("Apply", id="apply-button", color="primary"), justify='center', className="mx-3 mb-3"),
                         ]),
-                    ], className="mb-3", style={'background-color': '#121212', 'border-radius': '15px'}),
+                    ], className="mb-3", style={'background-color': config['style']['foreground_color'], 'border-radius': '15px'}),
                     dbc.Card([
                         html.P('Click on a node or an edge for details.')    
-                    ], id='on-click-output-card', body=True, style={'background-color': '#121212', 'border-radius': '15px'})
+                    ], id='on-click-output-card', body=True, style={'background-color': config['style']['foreground_color'], 'border-radius': '15px'})
                 ],width=4)
             ])
         ],

@@ -2,19 +2,27 @@
 
 [ ] Implement graph tweaker settings
     [x] Slider for min same shared images to show edges
-    [ ] Party selection checklist
-        [ ] Color map party selection checklist
+    [x] Party selection checklist
+        [x] Color map party selection checklist
     [x] Boolean selector to highlight edges of accounts with different party affiliation that posted the same image or the nodes directly that have adjacent diff party nodes
-    [ ] (maybe) Selector for num of iterations for layout generation (for faster load time)
+    [x] (maybe) Selector for num of iterations for layout generation (for faster load time)
 
-[ ] On node click open account info on sidebar below the graph filter settings
-    [ ] Num images posted by account, Hash shared same imagse as account with different party affiliation: yes/no, 
+[x] On node click open account info on sidebar below the graph filter settings
+    [x] Num images posted by account, Hash shared same imagse as account with different party affiliation: yes/no,
+    [ ] Better attention color
 
 [ ] On edge click show images that both accounts posted on sidebar or modal (choose)
     [ ] On image click of edge details show image details as in platform view
+    [ ] Add alert that this is a cross party connection
 
-[ ] Load initial graph elements from json instead of calculating it on demand
+[x] Load initial graph elements from json instead of calculating it on demand
 
-[ ] Custom function to map node size to either degree or num of posts (mby boolean setting for user to choose)
+[x] Improve performance by using an "Apply" button
 
-[ ] Improve performance by using an "Apply" button
+<!-- [ ] Custom function to map node size to either degree or num of posts (mby boolean setting for user to choose) -->
+
+[ ] Fix bug where some edges dont contain at least min same images shared that are selected
+
+##### Platform finish
+[ ] Ideate and experiment if network graph would make sense or keep it like it is
+[ ]

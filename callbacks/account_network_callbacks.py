@@ -47,8 +47,8 @@ def register_account_network_callbacks(df, config, account_graph):
         num_cross_party_connections = sum(1 for neighbor in neighbors if G.nodes[neighbor].get("party") != account_party)
         
         element = dbc.CardBody([
-            html.H5(account_name),
-            dbc.Alert(f"This account has shared the same image as {num_cross_party_connections} accounts with different party affiliations.") if num_cross_party_connections != 0 else [],
+            dbc.Alert([html.B("Cross Party Partisan"), html.P(f"This account has shared the same image as {num_cross_party_connections} accounts with different party affiliations.")], color="dark") if num_cross_party_connections != 0 else [],
+            html.H5(f"Account Name: {account_name}"),
             html.P([f"Party affiliation: ", html.Strong(account_party)]),
             html.P([f"Images posted: ", html.Strong(account_num_posts)]),
             html.P([f"Num. accounts that shared same images: ", html.Strong(account_num_neighbors)]),
