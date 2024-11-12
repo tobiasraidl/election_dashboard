@@ -11,9 +11,8 @@ def Navbar():
                 dbc.Nav(
                     [
                         # Page links
-                        dbc.NavItem(dbc.NavLink("Cross-Party Partisans", href="/")),
+                        dbc.NavItem(dbc.NavLink("Account Network", href="/")),
                         dbc.NavItem(dbc.NavLink("Platform Dissemination", href="/cross-platform")),
-                        dbc.NavItem(dbc.NavLink("network_v2", href="/network_v2")),
 
                         # Dropdown for "About"
                         dbc.DropdownMenu(
@@ -31,7 +30,7 @@ def Navbar():
                 ),
             ]
         ),
-        color="dark",
+        color="#121212",
         dark=True,
         className="mb-4"
     )

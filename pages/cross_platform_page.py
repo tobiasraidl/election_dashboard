@@ -13,7 +13,7 @@ dash.register_page(__name__, path='/cross-platform')
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
     
-df = pd.read_csv('data/cross_platform_posts.csv')
+df = pd.read_csv('data/outputs/cross_platform_posts.csv')
 image_details = dbc.Modal(
     [
         dbc.ModalHeader(dbc.ModalTitle("Image Details")),
