@@ -15,6 +15,7 @@ with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
     
 df = pd.read_csv('data/outputs/posts_with_party.csv')
+df_base_posts = pd.read_csv('data/outputs/base_posts.csv')
 
 account_graph = AccountGraph(df, config)
 
@@ -139,6 +140,47 @@ k_slider_element = html.Div([
     ])
 ])
 
+image_details_modal_element = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Image Details")),
+        dbc.ModalBody(
+            [
+                html.Div(
+                    [
+                        html.Div(id='image-details-text-account-page', className='top-left', style={'height': '100%', 'overflow': 'auto'}),
+                        html.Div(
+                            html.Img(
+                                id='image-details-image-account-page',
+                                src='assets/placeholder.jpg', 
+                                style={
+                                    'max-height': '200px', 
+                                    'width': '100%', 
+                                    'object-fit': 'contain'
+                                }
+                            ), 
+                            className="top-right",
+                            style={'height': '100%', 'overflow': 'hidden'}
+                        ),
+                        dcc.Graph(id='image-timeline-account-page', className='bottom-left'),
+                        dcc.Graph(figure={}, id='image-party-ratios-account-page', className='bottom-right'),
+                    ],
+                    style={
+                        'display': 'grid',
+                        'grid-template-columns': '1fr 1fr',
+                        'grid-template-rows': '1fr 2fr',
+                        'gap': '10px',      # Adds spacing between the sections
+                        'height': '100%'  # Ensures the modal is large
+                    },
+                    # className="modal-grid"
+                )
+            ]
+        ),
+    ],
+    id="image-details-account-page",
+    size="xl",
+    is_open=False,
+)
+
 layout = html.Div(
     style={
         'height': '100vh',
@@ -162,8 +204,9 @@ layout = html.Div(
                         ]),
                     ], className="mb-3", style={'background-color': config['style']['foreground_color'], 'border-radius': '15px'}),
                     dbc.Card([
-                        html.P('Click on a node or an edge for details.')    
-                    ], id='on-click-output-card', body=True, style={'background-color': config['style']['foreground_color'], 'border-radius': '15px'})
+                        html.P('Click on a node or an edge for details.')
+                    ], id='on-click-output-card', body=True, style={'background-color': config['style']['foreground_color'], 'border-radius': '15px'}),
+                    image_details_modal_element
                 ],width=4)
             ])
         ],
@@ -172,4 +215,4 @@ layout = html.Div(
     )
 )
 
-register_account_network_callbacks(df, config, account_graph)
+register_account_network_callbacks(df, df_base_posts, config, account_graph)

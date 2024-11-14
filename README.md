@@ -13,7 +13,9 @@
 
 [ ] On edge click show images that both accounts posted on sidebar or modal (choose)
     [ ] On image click of edge details show image details as in platform view
+        [ ] Make this a function in helper.py and nice popup so that it can be used in both pages
     [ ] Add alert that this is a cross party connection
+    [ ] 
 
 [x] Load initial graph elements from json instead of calculating it on demand
 
@@ -21,7 +23,7 @@
 
 <!-- [ ] Custom function to map node size to either degree or num of posts (mby boolean setting for user to choose) -->
 
-[ ] Fix bug where some edges dont contain at least min same images shared that are selected
+[x] Fix bug where some edges dont contain at least min same images shared that are selected
 
 ##### Platform finish
 [ ] Ideate and experiment if network graph would make sense or keep it like it is

@@ -29,6 +29,7 @@ def generate_image_grid(image_hashes):
                 dbc.Col(
                     html.Img(
                         src=image_urls[i],
+                        id={"type": "image", "index": image_hashes[i]},
                         style={'width': '100%', 'height': 'auto', 'object-fit': 'contain'}
                     ),
                     width=6
@@ -36,6 +37,7 @@ def generate_image_grid(image_hashes):
                 dbc.Col(
                     html.Img(
                         src=image_urls[i + 1], 
+                        id={"type": "image", "index": image_hashes[i]},
                         style={'width': '100%', 'height': 'auto', 'object-fit': 'contain'}
                     ),
                     width=6

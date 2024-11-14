@@ -183,9 +183,7 @@ def register_platform_view_callbacks(df):
                 legend_title='Platform',
                 hovermode='closest',
             )
-            
 
-            
             party_ratios = df_one_hash['party'].value_counts()
             
             df_party_ratios = party_ratios.reset_index()
