@@ -21,10 +21,10 @@ image_details = dbc.Modal(
             [
                 html.Div(
                     [
-                        html.Div(id='image-details-text', className='top-left', style={'height': '100%', 'overflow': 'auto'}),
+                        html.Div(id='image-details-text-platform-page', className='top-left', style={'height': '100%', 'overflow': 'auto'}),
                         html.Div(
                             html.Img(
-                                id='image',
+                                id='image-details-image-platform-page',
                                 src='assets/placeholder.jpg', 
                                 style={
                                     'max-height': '200px', 
@@ -35,8 +35,8 @@ image_details = dbc.Modal(
                             className="top-right",
                             style={'height': '100%', 'overflow': 'hidden'}
                         ),
-                        dcc.Graph(id='image-timeline', className='bottom-left'),
-                        dcc.Graph(figure={}, id='image-party-ratios', className='bottom-right'),
+                        dcc.Graph(id='image-timeline-platform-page', className='bottom-left'),
+                        dcc.Graph(figure={}, id='image-party-ratios-platform-page', className='bottom-right'),
                     ],
                     style={
                         'display': 'grid',
@@ -50,7 +50,7 @@ image_details = dbc.Modal(
             ]
         ),
     ],
-    id="image-details",
+    id="image-details-platform-page",
     size="xl",
     is_open=False,
 )
@@ -59,7 +59,14 @@ layout = dbc.Container(
     [
         dcc.Store(id='df-k-most-freq-hashes'),
         dbc.Row([
-            html.H4("Most shared images", style={'text-align': 'center'}),
+            dbc.Col(
+                [
+                    html.Div(id='bar-chart-wrapper', style={"border-radius": "15px", "background-color": config['style']['foreground_color'], "padding-top": "15px"}),
+                    image_details
+                ],
+                width="10", 
+                className="mb-3"
+            ),
             dbc.Col(
                 [
                     dbc.Card([
@@ -78,29 +85,13 @@ layout = dbc.Container(
                                     value=["Twitter", "Instagram", "Facebook"],  # Default: all options are True
                                     switch=True
                                 ),
-                            ], style={
-                                    'display': 'flex',
-                                    'flex-direction': 'column',
-                                    'justify-content': 'center',
-                                    'align-items': 'center',
-                                    'height': '400px'
-                            })
                             ])
-                    ])
+                        ])
+                    ], style={"border-radius": "15px", "background-color": config['style']['foreground_color'], "padding-top": "15px"})
                 ],
                 width='2',
                 className='mb-3',
-                style={'display': 'flex', 'align-items': 'center'}
             ),
-            dbc.Col(
-                [
-                    html.Div(id='bar-chart-wrapper', style={"border-radius": "15px", "background-color": config['style']['foreground_color'], "padding-top": "15px"}),
-                    image_details
-                ],
-                width="10", 
-                className="mb-3"
-            ),
-            
         ])
     ],
     fluid=True,

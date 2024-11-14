@@ -14,4 +14,4 @@ platform_color_map:
 
 style:
   foreground_color: "#121212"
-  background_color: "red"
+  background_color: "#222222"

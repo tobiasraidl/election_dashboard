@@ -5,6 +5,7 @@ import dash
 import plotly.graph_objects as go
 import plotly.express as px
 import os
+from utils.helper import create_image_details_items
 
 from utils.image_loader import load_image
 
@@ -47,6 +48,7 @@ def register_platform_view_callbacks(df):
         fig.update_layout(
             template='plotly_dark',
             barmode='stack',
+            title='Most Shared Images across all platforms',
             xaxis_title="Image",
             yaxis_title="Times Shared",
             showlegend=False,
@@ -94,7 +96,7 @@ def register_platform_view_callbacks(df):
     )
     def update_bar_chart(config_data, selected_values):
         if len(selected_values) < 2:
-            return {}, html.P('Select at least two platforms')
+            return {}, html.P('Select at least two platforms', className='p-5')
         if config_data is not None:
             # This is the second callback functionality (enforce_two_switches)
             hash_platform_counts = df.groupby('hash')['platform'].apply(set)
@@ -118,89 +120,91 @@ def register_platform_view_callbacks(df):
         return {}, None
     
     @callback(
-        [Output('image-details', 'is_open'),
-         Output('image-timeline', 'figure'),
-         Output('image-details-text', 'children'),
-         Output('image-party-ratios', 'figure'),
-         Output('image', 'src')],
+        [Output('image-details-platform-page', 'is_open'),
+         Output('image-timeline-platform-page', 'figure'),
+         Output('image-details-text-platform-page', 'children'),
+         Output('image-party-ratios-platform-page', 'figure'),
+         Output('image-details-image-platform-page', 'src')],
          Input('bar-chart', 'clickData'),
-        [State('image-details', 'is_open'),
+        [State('image-details-platform-page', 'is_open'),
          State('df-k-most-freq-hashes', 'data'),
          State('config-store', 'data')]
     )
     def toggle_modal(clickData, is_open, df_dict, config):
         if clickData:
             image_hash_clicked = clickData['points'][0]['x']
-            selected_hash = image_hash_clicked
+            img_hash = image_hash_clicked
             df = pd.DataFrame(df_dict)
-            df_one_hash = df[df['hash'] == selected_hash]
+            # df_one_hash = df[df['hash'] == selected_hash]
 
-            # Sort data by timestamp to connect dots chronologically
-            # Sort by timestamp as before
-            # Sort by timestamp as before
-            df_filtered = df_one_hash.sort_values(by='timestamp')
+            # # Sort data by timestamp to connect dots chronologically
+            # # Sort by timestamp as before
+            # # Sort by timestamp as before
+            # df_filtered = df_one_hash.sort_values(by='timestamp')
             
-            # Dynamically get the unique platforms in the order they appear
-            platform_order = df_filtered['platform'].unique()
+            # # Dynamically get the unique platforms in the order they appear
+            # platform_order = df_filtered['platform'].unique()
             
-            # Convert platform to a categorical type with a dynamic order
-            df_filtered['platform'] = pd.Categorical(df_filtered['platform'], categories=platform_order, ordered=True)
+            # # Convert platform to a categorical type with a dynamic order
+            # df_filtered['platform'] = pd.Categorical(df_filtered['platform'], categories=platform_order, ordered=True)
             
-            # Add the line trace with dark grey color connecting temporal succeeding dots, hide legend
-            fig_timeline = px.line(
-                df_filtered, 
-                x='timestamp', 
-                y='platform',  # Use platform directly (no jitter)
-                line_shape='linear',
-                title='Image Share Timeline',
-            ).update_traces(line_color='darkgrey', showlegend=False)  # Hide legend for line
+            # # Add the line trace with dark grey color connecting temporal succeeding dots, hide legend
+            # fig_timeline = px.line(
+            #     df_filtered, 
+            #     x='timestamp', 
+            #     y='platform',  # Use platform directly (no jitter)
+            #     line_shape='linear',
+            #     title='Image Share Timeline',
+            # ).update_traces(line_color='darkgrey', showlegend=False)  # Hide legend for line
             
-            # Add the scatter plot on top, hide legend
-            scatter_fig = px.scatter(
-                df_filtered,
-                x='timestamp',             # Time of the post
-                y='platform',              # Use platform directly (no jitter)
-                color='platform',          # Color each point by platform (Instagram, Facebook, Twitter)
-                color_discrete_map={
-                    'Facebook': config['platform_color_map'].get('Facebook', 'blue'),  # Default to blue if color not found
-                    'Instagram': config['platform_color_map'].get('Instagram', 'purple'),  # Default to purple
-                    'Twitter': config['platform_color_map'].get('Twitter', 'cyan'),  # Default to cyan
-                },
-                hover_data=['img_id', 'party', 'name'],  # Additional hover data
-                labels={'platform': 'Platform'},
-                height=600,
-                width=1000
-            ).update_traces(marker=dict(size=12), showlegend=False)  # Increase marker size and hide legend
+            # # Add the scatter plot on top, hide legend
+            # scatter_fig = px.scatter(
+            #     df_filtered,
+            #     x='timestamp',             # Time of the post
+            #     y='platform',              # Use platform directly (no jitter)
+            #     color='platform',          # Color each point by platform (Instagram, Facebook, Twitter)
+            #     color_discrete_map={
+            #         'Facebook': config['platform_color_map'].get('Facebook', 'blue'),  # Default to blue if color not found
+            #         'Instagram': config['platform_color_map'].get('Instagram', 'purple'),  # Default to purple
+            #         'Twitter': config['platform_color_map'].get('Twitter', 'cyan'),  # Default to cyan
+            #     },
+            #     hover_data=['img_id', 'party', 'name'],  # Additional hover data
+            #     labels={'platform': 'Platform'},
+            #     height=600,
+            #     width=1000
+            # ).update_traces(marker=dict(size=12), showlegend=False)  # Increase marker size and hide legend
             
-            # Combine the two plots: Line first, dots on top
-            fig_timeline.add_traces(scatter_fig.data)
+            # # Combine the two plots: Line first, dots on top
+            # fig_timeline.add_traces(scatter_fig.data)
             
-            # Update layout with dynamic tick values
-            fig_timeline.update_layout(
-                yaxis_title='Platform',
-                yaxis=dict(tickvals=list(range(len(platform_order))), ticktext=platform_order),  # Dynamically set y-ticks
-                xaxis_title='Time',
-                legend_title='Platform',
-                hovermode='closest',
-            )
+            # # Update layout with dynamic tick values
+            # fig_timeline.update_layout(
+            #     yaxis_title='Platform',
+            #     yaxis=dict(tickvals=list(range(len(platform_order))), ticktext=platform_order),  # Dynamically set y-ticks
+            #     xaxis_title='Time',
+            #     legend_title='Platform',
+            #     hovermode='closest',
+            # )
 
-            party_ratios = df_one_hash['party'].value_counts()
+            # party_ratios = df_one_hash['party'].value_counts()
             
-            df_party_ratios = party_ratios.reset_index()
-            df_party_ratios.columns = ['party', 'count']
+            # df_party_ratios = party_ratios.reset_index()
+            # df_party_ratios.columns = ['party', 'count']
 
-            fig_party_ratios = px.bar(df_party_ratios, x='party', y='count',
-                labels={'party': 'Party', 'count': 'Frequency'},
-                title='Platform Frequency',
-                color='party',
-                color_discrete_map=config['party_color_map'])
+            # fig_party_ratios = px.bar(df_party_ratios, x='party', y='count',
+            #     labels={'party': 'Party', 'count': 'Frequency'},
+            #     title='Platform Frequency',
+            #     color='party',
+            #     color_discrete_map=config['party_color_map'])
             
-            image_details_text = [
-                html.P(f"Image Hash: {selected_hash}"),
-                html.P(f"Times Shared: {df_one_hash.shape[0]}"),
-            ]
+            # image_details_text = [
+            #     html.P(f"Image Hash: {selected_hash}"),
+            #     html.P(f"Times Shared: {df_one_hash.shape[0]}"),
+            # ]
             
-            img_data = load_image(image_hash_clicked)
+            # img_data = load_image(image_hash_clicked)
+            
+            fig_timeline, image_details_text, fig_party_ratios, img_data = create_image_details_items(df, config, img_hash)
 
             
             return True, fig_timeline, image_details_text, fig_party_ratios, img_data

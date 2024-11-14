@@ -2,6 +2,7 @@ import pandas as pd
 import plotly.express as px
 from dash import html
 from utils.image_loader import load_image
+import dash_bootstrap_components as dbc
 
 def create_image_details_items(df, config, img_hash):
     df_one_hash = df[df['hash'] == img_hash]
@@ -50,6 +51,8 @@ def create_image_details_items(df, config, img_hash):
         xaxis_title='Time',
         legend_title='Platform',
         hovermode='closest',
+        paper_bgcolor=config['style']['foreground_color'],
+        plot_bgcolor=config['style']['foreground_color'],
     )
     
     ### PARTY RATIO BAR CHART
@@ -66,13 +69,17 @@ def create_image_details_items(df, config, img_hash):
     
     fig_party_ratios.update_layout(
         template='plotly_dark',
-        paper_bgcolor=config['style']['background_color'],  # Outer background color
-        plot_bgcolor=config['style']['background_color'],   # Inner plot background color
+        paper_bgcolor=config['style']['foreground_color'],
+        plot_bgcolor=config['style']['foreground_color'],
     )
     
     image_details_text = [
         html.P(f"Image Hash: {img_hash}"),
         html.P(f"Times Shared: {df_one_hash.shape[0]}"),
+        dbc.FormText(
+            "These statistics and plots refer to the entire dataset (The network view only includes ones where the party is known)",
+            style={"fontSize": "0.9rem", "color": "#A0A0A0"}
+        ),
     ]
     
     img_data = load_image(img_hash)
