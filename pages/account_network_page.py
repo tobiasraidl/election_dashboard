@@ -189,7 +189,21 @@ layout = html.Div(
         [
             dbc.Row([
                 dbc.Col([
-                    account_graph_element,
+                    dbc.Row(account_graph_element, className='mb-3'),
+                    dbc.Row([
+                        html.Div([
+                            dbc.Card([
+                                html.H5("Plot Description"),
+                                html.P(
+                                    """
+                                    Nodes represent accounts. Two accounts are connected if they shared at least one same image in the 6 week time period, 
+                                    leading up to the 2021 german federal election. The line opacity correlates to the number of same images shared between 
+                                    two accounts. This network plot includes all accounts of the dataset with known party affiliation.
+                                    """
+                                )
+                            ], body=True, style={'width': '100%', "background-color": config['style']['foreground_color'], "border-radius": "15px"}),
+                        ])
+                    ])
                 ],width=8),
                 dbc.Col([
                     dbc.Card([
@@ -208,7 +222,7 @@ layout = html.Div(
                     ], id='on-click-output-card', body=True, style={'background-color': config['style']['foreground_color'], 'border-radius': '15px'}),
                     image_details_modal_element
                 ],width=4)
-            ])
+            ]),
         ],
         fluid=True,
         style={"padding": "20px"}

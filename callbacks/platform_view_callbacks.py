@@ -48,7 +48,7 @@ def register_platform_view_callbacks(df):
         fig.update_layout(
             template='plotly_dark',
             barmode='stack',
-            title='Most Shared Images across all platforms',
+            title='Most Shared Images across Platforms',
             xaxis_title="Image",
             yaxis_title="Times Shared",
             showlegend=False,
