@@ -3,3 +3,4 @@ dash_bootstrap_components==1.6.0
 dash_cytoscape==1.0.2
 PyYAML
 gunicorn
+pandas
