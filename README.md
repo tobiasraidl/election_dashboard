@@ -5,3 +5,6 @@ This dashboard serves as a tool to visually explore social media dynamics during
 1. Install the requirements specified in the `requirements.txt` file
 2. Put the csv including all the posts in the `data/` directory
 4. Put all the images into the directory `images/` using the following naming convention: `<image_hash>.jpg`
+
+### TODO
+- log transform the weights to map to the edge widths

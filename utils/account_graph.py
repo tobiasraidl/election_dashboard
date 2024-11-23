@@ -5,6 +5,7 @@ import pandas as pd
 from itertools import combinations
 from datetime import datetime
 from collections import defaultdict
+import numpy as np
 
 class AccountGraph:
     
@@ -71,6 +72,8 @@ class AccountGraph:
     # highlight_cross_party_connections ... If True highlights edges that connect accounts affilliated to different parties
     # element_list_path ... loads pre-calculated elements list instead of generating new ()
     def gen_cytoscape_elements(self, min_same_imgs_shared=1, parties=None, highlight_cross_party_connections=False, iterations=100, k=0.2, element_list_path=None):
+        max_weight = max(data['weight'] for _, _, data in self.G.edges(data=True))
+        max_weight_log = np.log10(max_weight)
         save_as_initial_element_list = False
         # Load json
         if element_list_path != None:
@@ -132,7 +135,7 @@ class AccountGraph:
                         edges.append({
                             'data': {'source': u1, 'target': u2, 'weight': filtered_graph[u1][u2]['weight']}, 
                             'style': {
-                                'opacity': filtered_graph[u1][u2]['weight']/10,
+                                'opacity': (np.log10(filtered_graph[u1][u2]['weight']) / (max_weight_log/2)) + 0.5,
                                 'width': 3,
                             }
                         })
@@ -142,7 +145,7 @@ class AccountGraph:
                     edges.append({
                         'data': {'source': u1, 'target': u2, 'weight': filtered_graph[u1][u2]['weight']}, 
                         'style': {
-                            'opacity': filtered_graph[u1][u2]['weight']/10,
+                            'opacity': (np.log10(filtered_graph[u1][u2]['weight']) / (max_weight_log/2)) + 0.2,
                             'width': 3,
                         }
                     })

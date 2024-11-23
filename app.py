@@ -9,7 +9,7 @@ import pandas as pd
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 app = dash.Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.DARKLY], suppress_callback_exceptions=True)
-server = app.server
+server = app.server # for the render.com server
 
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
@@ -22,7 +22,7 @@ app.layout = html.Div(
         dash.page_container
     ],
 )
-
+    
 @app.callback(
     dash.dependencies.Output('config-store', 'data'),
     [dash.dependencies.Input('config-store', 'data')]
