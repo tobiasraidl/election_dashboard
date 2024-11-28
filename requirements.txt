@@ -6,3 +6,4 @@ PyYAML
 gunicorn
 pandas
 scipy
+graph-tools

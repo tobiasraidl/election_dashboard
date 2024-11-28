@@ -6,6 +6,8 @@ from itertools import combinations
 from datetime import datetime
 from collections import defaultdict
 import numpy as np
+from graph_tool import Graph
+import graph_tool as gt
 
 class AccountGraph:
     
@@ -71,7 +73,7 @@ class AccountGraph:
     # iterations ... 50 to 100 -> lower is faster but higher is better looking layout
     # highlight_cross_party_connections ... If True highlights edges that connect accounts affilliated to different parties
     # element_list_path ... loads pre-calculated elements list instead of generating new ()
-    def gen_cytoscape_elements(self, min_same_imgs_shared=1, parties=None, highlight_cross_party_connections=False, iterations=100, k=0.2, element_list_path=None):
+    def gen_cytoscape_elements(self, min_same_imgs_shared=1, parties=None, highlight_cross_party_connections=False, iterations=30, k=0.1, element_list_path=None):
         max_weight = max(data['weight'] for _, _, data in self.G.edges(data=True))
         max_weight_log = np.log10(max_weight)
         save_as_initial_element_list = False
@@ -98,10 +100,18 @@ class AccountGraph:
         nodes_with_edges = [node for node, degree in filtered_graph.degree() if degree > 0]
         filtered_graph = filtered_graph.subgraph(nodes_with_edges)
         
-        positions = nx.spring_layout(filtered_graph, k=k, iterations=iterations)
-        # positions = nx.kamada_kawai_layout(filtered_graph)
-        # positions = nx.fruchterman_reingold_layout(filtered_graph)
+        # Convert to graph-tool
+        gt_graph = Graph(directed=filtered_graph.is_directed())  # Preserve directedness
+        gt_graph.add_edge_list(filtered_graph.edges())
+
+        # Optional: Add node/edge attributes if they exist
+        for v in filtered_graph.nodes(data=True):
+            gt_graph.vp[v[0]] = v[1]
         
+        positions = gt.fruchterman_reingold_layout(g, n_iter=1000)
+        print(positions)
+        # positions = nx.spring_layout(filtered_graph, k=k, iterations=iterations)
+
         # Convert the nodes of the network into the Cytoscape format
         nodes = []
         for node in filtered_graph.nodes():

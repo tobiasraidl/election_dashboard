@@ -133,7 +133,7 @@ k_slider_element = html.Div([
         dbc.Col(
             dcc.Slider(
                 0.05, 0.2, 0.05,
-                value=0.15,
+                value=0.1,
                 id="k-slider"
             ), width=8
         )
