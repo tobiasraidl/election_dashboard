@@ -92,6 +92,20 @@ highlight_cross_party_connections_toggle_element = html.Div([
     ])
 ])
 
+
+scaling_ratio_slider_element = html.Div([
+    dbc.Row([
+        dbc.Col(html.P("Scale Node Distance:"), width=4),
+        dbc.Col(
+            dcc.Slider(
+                5.0, 30.0, 5.0,
+                value=5.0,
+                id="scaling-ratio-slider"
+            ), width=8
+        )
+    ])
+])
+
 iterations_tooltip = html.Div([
     # Create an info icon
     html.Span(
@@ -103,11 +117,9 @@ iterations_tooltip = html.Div([
     # Tooltip for the info icon
     dbc.Tooltip(
         [
-            "Low -> Faster",
+            "Low -> Performance",
             html.Br(),
-            "High -> Better layout quality",
-            html.Br(),
-            "Select the iterations of the Fruchterman-Reingold force-directed algorithm which produces the node positions."
+            "High -> Quality"
         ],
         target="info-icon",
         placement="right"  # Position of the tooltip (top, right, bottom, left)
@@ -119,22 +131,9 @@ iterations_slider_element = html.Div([
         dbc.Col(html.P(["Iterations:", iterations_tooltip], style={"display": "flex", "alignItems": "center"}), width=4),
         dbc.Col(
             dcc.Slider(
-                20, 100, 10,
+                50, 200, 50,
                 value=100,
-                id="iteration-slider"
-            ), width=8
-        )
-    ])
-])
-
-k_slider_element = html.Div([
-    dbc.Row([
-        dbc.Col(html.P("Optimal Node Distance:"), width=4),
-        dbc.Col(
-            dcc.Slider(
-                0.05, 0.2, 0.05,
-                value=0.1,
-                id="k-slider"
+                id="iterations-slider"
             ), width=8
         )
     ])
@@ -196,9 +195,11 @@ layout = html.Div(
                                 html.H5("Plot Description"),
                                 html.P(
                                     """
-                                    Nodes represent accounts. Two accounts are connected if they shared at least one same image in the 6 week time period, 
-                                    leading up to the 2021 german federal election. The line opacity correlates to the number of same images shared between 
-                                    two accounts. This network plot includes all accounts of the dataset with known party affiliation.
+                                    Nodes represent social media accounts. Two accounts are connected if they shared at least one same image in 
+                                    the six-week time period leading up to the election. Besides a filter option the graph visualization features 
+                                    the following interactivity. Clicking on a node leads to more information about the account, and clicking 
+                                    on a connection provides the images that both accounts shared. Furthermore, clicking on an image will provide 
+                                    more information about it. This network plot includes all accounts of the dataset with known party affiliation.
                                     """
                                 )
                             ], body=True, style={'width': '100%', "background-color": config['style']['foreground_color'], "border-radius": "15px"}),
@@ -212,7 +213,7 @@ layout = html.Div(
                             dbc.Row(highlight_cross_party_connections_toggle_element, className='mb-3 mx-3'),
                             dbc.Row(party_filter_element, className='mb-3 mx-3'),
                             # html.Hr(style={"borderTop": "1px solid #ccc", "margin": "20px 0"}, className='mb-5 mt-5'),
-                            dbc.Row(k_slider_element, className='mb-3 mx-3'),
+                            dbc.Row(scaling_ratio_slider_element, className='mb-3 mx-3'),
                             dbc.Row(iterations_slider_element, className='mb-3 mx-3'),
                             dbc.Row(dbc.Button("Apply", id="apply-button", color="primary"), justify='center', className="mx-3 mb-3"),
                         ]),

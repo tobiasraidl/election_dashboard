@@ -6,8 +6,7 @@ from itertools import combinations
 from datetime import datetime
 from collections import defaultdict
 import numpy as np
-from graph_tool import Graph
-import graph_tool as gt
+from fa2_modified import ForceAtlas2
 
 class AccountGraph:
     
@@ -73,7 +72,7 @@ class AccountGraph:
     # iterations ... 50 to 100 -> lower is faster but higher is better looking layout
     # highlight_cross_party_connections ... If True highlights edges that connect accounts affilliated to different parties
     # element_list_path ... loads pre-calculated elements list instead of generating new ()
-    def gen_cytoscape_elements(self, min_same_imgs_shared=1, parties=None, highlight_cross_party_connections=False, iterations=30, k=0.1, element_list_path=None):
+    def gen_cytoscape_elements(self, min_same_imgs_shared=1, parties=None, highlight_cross_party_connections=False, scaling_ratio=5.0, iterations=100, element_list_path=None):
         max_weight = max(data['weight'] for _, _, data in self.G.edges(data=True))
         max_weight_log = np.log10(max_weight)
         save_as_initial_element_list = False
@@ -100,24 +99,58 @@ class AccountGraph:
         nodes_with_edges = [node for node, degree in filtered_graph.degree() if degree > 0]
         filtered_graph = filtered_graph.subgraph(nodes_with_edges)
         
-        # Convert to graph-tool
-        gt_graph = Graph(directed=filtered_graph.is_directed())  # Preserve directedness
-        gt_graph.add_edge_list(filtered_graph.edges())
-
-        # Optional: Add node/edge attributes if they exist
-        for v in filtered_graph.nodes(data=True):
-            gt_graph.vp[v[0]] = v[1]
-        
-        positions = gt.fruchterman_reingold_layout(g, n_iter=1000)
-        print(positions)
         # positions = nx.spring_layout(filtered_graph, k=k, iterations=iterations)
+        
+        forceatlas2 = ForceAtlas2(
+            outboundAttractionDistribution=True,
+            linLogMode=False,
+            adjustSizes=False,
+            edgeWeightInfluence=1.0,
+            jitterTolerance=1.0,
+            barnesHutOptimize=True,
+            barnesHutTheta=2,
+            scalingRatio=scaling_ratio,
+            strongGravityMode=False,
+            gravity=1.0
+        )
+        positions = forceatlas2.forceatlas2_networkx_layout(filtered_graph, iterations=iterations)
+        
+        min_distance = 50  # Change this value as needed
 
+        # Function to check and adjust positions
+        def adjust_positions(positions, min_distance):
+            nodes = list(positions.keys())
+            adjusted_positions = positions.copy()
+
+            for i in range(len(nodes)):
+                for j in range(i + 1, len(nodes)):
+                    node_i, node_j = nodes[i], nodes[j]
+                    pos_i, pos_j = adjusted_positions[node_i], adjusted_positions[node_j]
+                    dist = np.linalg.norm(np.array(pos_i) - np.array(pos_j))
+
+                    # If the nodes are too close, move them apart
+                    if dist < min_distance:
+                        # Calculate the direction vector
+                        direction = np.array(pos_j) - np.array(pos_i)
+                        direction /= np.linalg.norm(direction)  # Normalize
+
+                        # Move nodes apart by the difference needed to achieve min_distance
+                        adjustment = (min_distance - dist) / 2
+                        adjusted_positions[node_i] -= direction * adjustment
+                        adjusted_positions[node_j] += direction * adjustment
+
+            return adjusted_positions
+
+        # Adjust the positions based on the minimum distance if not enough nodes for automatic spacing
+        if len(filtered_graph.nodes()) < 500:
+            positions = adjust_positions(positions, min_distance)
+        
         # Convert the nodes of the network into the Cytoscape format
         nodes = []
         for node in filtered_graph.nodes():
             nodes.append({
                 'data': {'id': node}, 
-                'position': {'x': positions[node][0]*5000, 'y': positions[node][1]*5000},
+                'position': {'x': positions[node][0], 'y': positions[node][1]},
                 'style': {
                     # 'width': f'{filtered_graph.nodes[node].get("num_posts", 10)}px',  # Ensure it's numeric with 'px'
                     # 'height': f'{filtered_graph.nodes[node].get("num_posts", 10)}px',  # Same for height
@@ -137,6 +170,7 @@ class AccountGraph:
                             'style': {
                                 'opacity': 1,
                                 'width': 20,
+                                'z-index': 2,
                                 'line-color': 'white',
                             }
                         })
@@ -160,8 +194,8 @@ class AccountGraph:
                         }
                     })
 
-        if save_as_initial_element_list:
-            with open(element_list_path, 'w') as file:
-                json.dump(nodes + edges, file, indent=4)  # indent=4 makes the output more readable
+        # if save_as_initial_element_list:
+        #     with open(element_list_path, 'w') as file:
+        #         json.dump(nodes + edges, file, indent=4)  # indent=4 makes the output more readable
             
         return nodes + edges

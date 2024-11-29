@@ -6,4 +6,5 @@ PyYAML
 gunicorn
 pandas
 scipy
-graph-tools
+cython
+fa2_modified

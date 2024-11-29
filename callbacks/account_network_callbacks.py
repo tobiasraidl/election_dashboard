@@ -14,18 +14,18 @@ def register_account_network_callbacks(df, df_base_posts, config, account_graph)
             State("party-filter-checklist-col1", "value"),
             State("party-filter-checklist-col2", "value"),
             State("highlight-cross-party-connections-toogle", "value"),
-            State("iteration-slider", "value"),
-            State("k-slider", "value")
+            State("scaling-ratio-slider", "value"),
+            State("iterations-slider", "value")
         ],
         Input("apply-button", "n_clicks"),
         prevent_initial_call=True
     )
-    def update_elements(min_same_imgs_shared, selected_parties_1, selected_parties_2, cross_party_connections_toggle, iterations, k, n_clicks):
+    def update_elements(min_same_imgs_shared, selected_parties_1, selected_parties_2, cross_party_connections_toggle, scaling_ratio, iterations, n_clicks):
         elements = account_graph.gen_cytoscape_elements(
             min_same_imgs_shared = min_same_imgs_shared, 
             parties = selected_parties_1 + selected_parties_2,
+            scaling_ratio = scaling_ratio,
             iterations = iterations,
-            k=k,
             highlight_cross_party_connections = len(cross_party_connections_toggle) != 0,
         )
         return elements
