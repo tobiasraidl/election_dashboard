@@ -5,6 +5,7 @@ This dashboard serves as a tool to visually explore social media dynamics during
 1. Microsoft Visual C++ 14.0 (Build Tools) or greater is required for the library fa2 that calculates the graph layout
 2. Install the requirements specified in the `requirements.txt` file
 3. Put all the images into the directory `images/` using the following naming convention: `<image_hash>.jpg`
+to mount: `docker run -p 8050:8050 -it --rm -v /c/users/tobia/network_dashboard:/app ubuntu /bin/bash`
 
 ### TODO
 - log transform the weights to map to the edge widths

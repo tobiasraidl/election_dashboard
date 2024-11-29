@@ -189,7 +189,7 @@ class AccountGraph:
                     edges.append({
                         'data': {'source': u1, 'target': u2, 'weight': filtered_graph[u1][u2]['weight']}, 
                         'style': {
-                            'opacity': (np.log10(filtered_graph[u1][u2]['weight']) / (max_weight_log/2)) + 0.2,
+                            'opacity': (np.log10(filtered_graph[u1][u2]['weight']) / (max_weight_log/2)) + 0.5,
                             'width': 3,
                         }
                     })
