@@ -1,5 +1,5 @@
 from dash.dependencies import Input, Output, State
-from dash import callback, Output, Input, State, callback_context, dcc, html, ctx, ALL, MATCH
+from dash import callback, Output, Input, State, html, ctx, ALL
 import dash_bootstrap_components as dbc
 from utils.image_loader import generate_image_grid
 from utils.helper import create_image_details_items
@@ -83,9 +83,7 @@ def register_account_network_callbacks(df, df_base_posts, config, account_graph)
         element = dbc.CardBody([
             html.P(["This edge connects ", html.B(acc1_name), " and ", html.B(acc2_name)]),
             html.P(f"The following {num_same_shared_imgs} image(s) where shared by both."),
-            # generate_image_grid(same_shared_images)
         ] + generate_image_grid(same_shared_images))
-            # element = generate_image_grid(same_shared_images)
         return element
     
     @callback(
@@ -101,7 +99,7 @@ def register_account_network_callbacks(df, df_base_posts, config, account_graph)
         prevent_initial_call=True,
     )
     def display_img_details(is_open, n_clicks):
-        if not any(n_clicks):  # No image has been clicked
+        if not any(n_clicks):
             return is_open, dash.no_update, [], {}, 'assets/placeholder.jpg'
         else: 
             triggered_input = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -110,17 +108,3 @@ def register_account_network_callbacks(df, df_base_posts, config, account_graph)
             fig_timeline_plot, image_details_text, fig_party_ratios, img_data = create_image_details_items(df_base_posts, config, img_hash)
             return True, fig_timeline_plot, image_details_text, fig_party_ratios, img_data
         
-    
-    # @callback(
-    #     [Output('image-details', 'is_open'),
-    #      Output('image-timeline', 'figure'),
-    #      Output('image-details-text', 'children'),
-    #      Output('image-party-ratios', 'figure'),
-    #      Output('image', 'src')],
-    #     #  Input('bar-chart', 'clickData'),
-    #     # [State('image-details', 'is_open'),
-    #     #  State('df-k-most-freq-hashes', 'data'),
-    #     #  State('config-store', 'data')]
-    # )
-    # def toggle_modal(clickData, is_open, df_dict, config):
-    #     pass

@@ -32,23 +32,6 @@ class AccountGraph:
             # Add the user to the graph (if not already added)
             if user_id not in G:
                 G.add_node(user_id, name=row['name'], party=row['party'], img_hashes=accs_img_hashes.get(user_id, []), num_posts=len(accs_img_hashes.get(user_id, [])))
-
-        #     # Increment shared image count between pairs of users
-        #     for _, other_row in self.df[self.df['hash'] == image_hash].iterrows():
-        #         other_user_id = other_row['user_id']
-        #         if (user_id > other_user_id) and (user_id != other_user_id):
-        #             image_shares[user_id][other_user_id] += 1
-        
-        # # Add edges to the graph based on shared images
-        # for user1, connections in image_shares.items():
-        #     for user2, weight in connections.items():
-        #         if G.has_edge(user1, user2):
-        #             # If edge exists, update weight (i.e., increment shared image count)
-        #             G[user1][user2]['weight'] += weight
-        #         else:
-        #             # If no edge exists, create a new one with the weight (number of shared images)
-        #             cross_party = party_affiliations[user1] != party_affiliations[user2]
-        #             G.add_edge(user1, user2, weight=weight, cross_party=cross_party)
         
         for node1, node2 in combinations(G.nodes, 2):
             # Get the hashes of each node
@@ -99,8 +82,6 @@ class AccountGraph:
         nodes_with_edges = [node for node, degree in filtered_graph.degree() if degree > 0]
         filtered_graph = filtered_graph.subgraph(nodes_with_edges)
         
-        # positions = nx.spring_layout(filtered_graph, k=k, iterations=iterations)
-        
         forceatlas2 = ForceAtlas2(
             outboundAttractionDistribution=True,
             linLogMode=False,
@@ -115,7 +96,7 @@ class AccountGraph:
         )
         positions = forceatlas2.forceatlas2_networkx_layout(filtered_graph, iterations=iterations)
         
-        min_distance = 50  # Change this value as needed
+        min_distance = 50
 
         # Function to check and adjust positions
         def adjust_positions(positions, min_distance):
@@ -152,8 +133,6 @@ class AccountGraph:
                 'data': {'id': node}, 
                 'position': {'x': positions[node][0], 'y': positions[node][1]},
                 'style': {
-                    # 'width': f'{filtered_graph.nodes[node].get("num_posts", 10)}px',  # Ensure it's numeric with 'px'
-                    # 'height': f'{filtered_graph.nodes[node].get("num_posts", 10)}px',  # Same for height
                     'background-color': self.config["party_color_map"][filtered_graph.nodes[node]['party']]
                     }
             })
@@ -194,8 +173,8 @@ class AccountGraph:
                         }
                     })
 
-        # if save_as_initial_element_list:
-        #     with open(element_list_path, 'w') as file:
-        #         json.dump(nodes + edges, file, indent=4)  # indent=4 makes the output more readable
+        if save_as_initial_element_list:
+            with open(element_list_path, 'w') as file:
+                json.dump(nodes + edges, file, indent=4)  # indent=4 makes the output more readable
             
         return nodes + edges

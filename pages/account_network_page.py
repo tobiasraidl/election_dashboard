@@ -1,10 +1,9 @@
 import dash
-from dash import html, dcc, callback
+from dash import html, dcc
 import yaml
 import dash_bootstrap_components as dbc
 import dash_cytoscape as cyto
 import pandas as pd
-import os
 
 from callbacks.account_network_callbacks import register_account_network_callbacks
 from utils.account_graph import AccountGraph
@@ -14,8 +13,8 @@ dash.register_page(__name__, path='/')
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
     
-df = pd.read_csv('data/outputs/posts_with_party.csv')
-df_base_posts = pd.read_csv('data/outputs/base_posts.csv')
+df = pd.read_csv('data/posts_with_party.csv')
+df_base_posts = pd.read_csv('data/base_posts.csv')
 
 account_graph = AccountGraph(df, config)
 
@@ -27,7 +26,7 @@ account_graph_element = dbc.Spinner(
         id='account-graph',
         layout={'name': 'preset'},
         style={'width': '100%', 'height': '750px', "background-color": config['style']['foreground_color'], "border-radius": "15px"},
-        elements=account_graph.gen_cytoscape_elements(element_list_path="data/outputs/init_account_network_elements.json"),
+        elements=account_graph.gen_cytoscape_elements(element_list_path="data/init_account_network_elements.json"),
     )
 )
 
@@ -46,7 +45,6 @@ min_same_imgs_shared_slider = html.Div([
 
 party_filter_col1_element = dbc.Checklist(
     options=[
-        # {"label": html.Span("Twitter", style={"color": "white","backgroundColor": config["platform_color_map"]["Twitter"], "borderRadius": "4px", "padding": "1px 10px 1px 10px"}), "value": "Twitter"},
         {"label": html.Span("AFD", style={"color": "white","backgroundColor": config["party_color_map"]["afd"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "afd"},
         {"label": html.Span("SPD", style={"color": "white","backgroundColor": config["party_color_map"]["spd"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "spd"},
         {"label": html.Span("Die Grünen", style={"color": "white","backgroundColor": config["party_color_map"]["die_gruenen"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "die_gruenen"},
@@ -78,7 +76,6 @@ party_filter_element = html.Div([
 highlight_cross_party_connections_toggle_element = html.Div([
     dbc.Row([
         dbc.Col(html.P('Highlight Cross Party Connections:'), width=8),
-        # dbc.Col(width=4),
         dbc.Col(
             dbc.Checklist(
                 options=[
@@ -86,7 +83,6 @@ highlight_cross_party_connections_toggle_element = html.Div([
                 ],
                 value=[],
                 id="highlight-cross-party-connections-toogle",
-                # switch=True
             ), width=4
         ),
     ])
@@ -122,7 +118,7 @@ iterations_tooltip = html.Div([
             "High -> Quality"
         ],
         target="info-icon",
-        placement="right"  # Position of the tooltip (top, right, bottom, left)
+        placement="right"
     )
 ])
 
@@ -167,10 +163,9 @@ image_details_modal_element = dbc.Modal(
                         'display': 'grid',
                         'grid-template-columns': '1fr 1fr',
                         'grid-template-rows': '1fr 2fr',
-                        'gap': '10px',      # Adds spacing between the sections
-                        'height': '100%'  # Ensures the modal is large
+                        'gap': '10px',
+                        'height': '100%'
                     },
-                    # className="modal-grid"
                 )
             ]
         ),
@@ -212,7 +207,6 @@ layout = html.Div(
                             dbc.Row(min_same_imgs_shared_slider, className='mb-3 mt-3 mx-3'),
                             dbc.Row(highlight_cross_party_connections_toggle_element, className='mb-3 mx-3'),
                             dbc.Row(party_filter_element, className='mb-3 mx-3'),
-                            # html.Hr(style={"borderTop": "1px solid #ccc", "margin": "20px 0"}, className='mb-5 mt-5'),
                             dbc.Row(scaling_ratio_slider_element, className='mb-3 mx-3'),
                             dbc.Row(iterations_slider_element, className='mb-3 mx-3'),
                             dbc.Row(dbc.Button("Apply", id="apply-button", color="primary"), justify='center', className="mx-3 mb-3"),

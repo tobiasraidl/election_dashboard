@@ -3,7 +3,7 @@ party_color_map:
   spd: "#993129"      # Red (SPD)
   die_gruenen: "#3e872f"   # Green (Bündnis 90/Die Grünen)
   die_linke: "#8a2286"    # Magenta (Die Linke)
-  cdu_csu: "#949494" #"#000000"      # Black (CDU)
+  cdu_csu: "#005974" #"#949494" #"#000000"      # Turquoise (CDU)
   fdp: "#a88d32"      # Yellow (FDP)
   unknown: "#404040"  # Grey (Unknown)
 

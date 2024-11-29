@@ -2,9 +2,7 @@ import dash
 from dash import dcc, html
 import yaml
 import dash_bootstrap_components as dbc
-import dash_cytoscape as cyto
 import pandas as pd
-import os
 
 from callbacks.platform_view_callbacks import register_platform_view_callbacks
 
@@ -13,7 +11,7 @@ dash.register_page(__name__, path='/cross-platform')
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
     
-df = pd.read_csv('data/outputs/cross_platform_posts.csv')
+df = pd.read_csv('data/cross_platform_posts.csv')
 image_details = dbc.Modal(
     [
         dbc.ModalHeader(dbc.ModalTitle("Image Details")),
@@ -42,10 +40,9 @@ image_details = dbc.Modal(
                         'display': 'grid',
                         'grid-template-columns': '1fr 1fr',
                         'grid-template-rows': '1fr 2fr',
-                        'gap': '10px',      # Adds spacing between the sections
-                        'height': '100%'  # Ensures the modal is large
+                        'gap': '10px',
+                        'height': '100%'
                     },
-                    # className="modal-grid"
                 )
             ]
         ),
