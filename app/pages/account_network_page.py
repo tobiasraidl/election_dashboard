@@ -107,8 +107,8 @@ scaling_ratio_slider_element = html.Div([
         dbc.Col(html.P("Scale Node Distance:"), width=4),
         dbc.Col(
             dcc.Slider(
-                5.0, 30.0, 5.0,
-                value=5.0,
+                1.0, 10.0, 1.0,
+                value=3.0,
                 id="scaling-ratio-slider"
             ), width=8
         )

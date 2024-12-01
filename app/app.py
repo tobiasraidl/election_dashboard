@@ -34,8 +34,8 @@ def load_config(data):
 if __name__ == "__main__":
     
     # When launched without docker
-    app.run(debug=True)
+    # app.run(debug=True)
     
     # When launched using docker
-    # app.run(host='0.0.0.0', port=8050, debug=False)
+    app.run(host='0.0.0.0', port=8050, debug=False)
 
