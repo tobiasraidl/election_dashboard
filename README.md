@@ -7,6 +7,7 @@ This dashboard serves as a tool to visually explore social media dynamics during
 1. Put all the images into the app/images/ directory using the following naming convention: `<image_hash>.jpg`. *
 2. Build the docker image: In the directory with the Dockerfile run `docker build -t election-dashboard .` (make sure docker is running)
 3. Run the docker iamge as a container: In the directory with the Dockerfile run `docker run -d --name election-dashboard-container -p 8050:8050 election-dashboard`
+4. Open the app inside a browser via `http://localhost:8050/`
 
 *Contact me for the images at e11717659@student.tuwien.ac.at
 
