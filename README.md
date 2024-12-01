@@ -4,10 +4,13 @@ This dashboard serves as a tool to visually explore social media dynamics during
 ![example_image](https://github.com/user-attachments/assets/783cb032-911e-4f76-8e8d-3ac76a0b3766)
 
 ### Setup
-1. Put all the images into the app/images/ directory using the following naming convention: `<image_hash>.jpg`.
+1. Put all the images into the app/images/ directory using the following naming convention: `<image_hash>.jpg`. *
 2. Build the docker image: In the directory with the Dockerfile run `docker build -t election-dashboard .` (make sure docker is running)
 3. Run the docker iamge as a container: In the directory with the Dockerfile run `docker run -d --name election-dashboard-container -p 8050:8050 election-dashboard`
+
+*Contact me for the images at e11717659@student.tuwien.ac.at
 
 ### Links
 Detailed description of the dashboard: https://polarvis.github.io/dashboard/#the-polarvis-election-dashboard
 POLARVIS: https://polarvis.github.io/
+
