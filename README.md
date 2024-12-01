@@ -11,6 +11,6 @@ This dashboard serves as a tool to visually explore social media dynamics during
 *Contact me for the images at e11717659@student.tuwien.ac.at
 
 ### Links
-Detailed description of the dashboard: https://polarvis.github.io/dashboard/#the-polarvis-election-dashboard
-POLARVIS: https://polarvis.github.io/
+[Detailed description of the dashboard](https://polarvis.github.io/dashboard/#the-polarvis-election-dashboard)  
+[POLARVIS](https://polarvis.github.io/)
 
