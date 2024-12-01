@@ -43,6 +43,19 @@ min_same_imgs_shared_slider = html.Div([
     ])
 ])
 
+min_account_connections_slider = html.Div([
+    dbc.Row([
+        dbc.Col(html.P("Min. account connections:", style={'margin-right': '10px'}), width=4),
+        dbc.Col(
+            dcc.Slider(
+                1, 10, 1,
+                value=1,
+                id="min-account-connections-slider"
+            ), width=8
+        )
+    ])
+])
+
 party_filter_col1_element = dbc.Checklist(
     options=[
         {"label": html.Span("AFD", style={"color": "white","backgroundColor": config["party_color_map"]["afd"], "borderRadius": "4px", "padding": "0px 10px 2px 10px"}), "value": "afd"},
@@ -115,7 +128,7 @@ iterations_tooltip = html.Div([
         [
             "Low -> Performance",
             html.Br(),
-            "High -> Quality"
+            "High -> Better cluster visualization"
         ],
         target="info-icon",
         placement="right"
@@ -205,6 +218,7 @@ layout = html.Div(
                     dbc.Card([
                         dbc.CardBody([
                             dbc.Row(min_same_imgs_shared_slider, className='mb-3 mt-3 mx-3'),
+                            dbc.Row(min_account_connections_slider, className='mb-3 mt-3 mx-3'),
                             dbc.Row(highlight_cross_party_connections_toggle_element, className='mb-3 mx-3'),
                             dbc.Row(party_filter_element, className='mb-3 mx-3'),
                             dbc.Row(scaling_ratio_slider_element, className='mb-3 mx-3'),

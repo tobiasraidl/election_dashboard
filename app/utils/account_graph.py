@@ -55,7 +55,7 @@ class AccountGraph:
     # iterations ... 50 to 100 -> lower is faster but higher is better looking layout
     # highlight_cross_party_connections ... If True highlights edges that connect accounts affilliated to different parties
     # element_list_path ... loads pre-calculated elements list instead of generating new ()
-    def gen_cytoscape_elements(self, min_same_imgs_shared=1, parties=None, highlight_cross_party_connections=False, scaling_ratio=5.0, iterations=100, element_list_path=None):
+    def gen_cytoscape_elements(self, min_same_imgs_shared=1, min_account_connections=1, parties=None, highlight_cross_party_connections=False, scaling_ratio=5.0, iterations=100, element_list_path=None):
         max_weight = max(data['weight'] for _, _, data in self.G.edges(data=True))
         max_weight_log = np.log10(max_weight)
         save_as_initial_element_list = False
@@ -68,8 +68,14 @@ class AccountGraph:
             else:
                 save_as_initial_element_list = True
                 
-        # Filter out nodes that are not in the parties list parameter
+        
         filtered_graph = self.G
+        # Filter out nodes that have degree < min_account_connections
+        if min_account_connections != 1:
+            nodes_to_keep = [node for node, degree in filtered_graph.degree() if degree >= min_account_connections]
+            filtered_graph = filtered_graph.subgraph(nodes_to_keep)
+                
+        # Filter out nodes that are not in the parties list parameter
         if parties != None:
             nodes_to_keep = [node for node, data in filtered_graph.nodes(data=True) if data['party'] in parties]
             filtered_graph = filtered_graph.subgraph(nodes_to_keep)
@@ -173,8 +179,8 @@ class AccountGraph:
                         }
                     })
 
-        if save_as_initial_element_list:
-            with open(element_list_path, 'w') as file:
-                json.dump(nodes + edges, file, indent=4)  # indent=4 makes the output more readable
+        # if save_as_initial_element_list:
+        #     with open(element_list_path, 'w') as file:
+        #         json.dump(nodes + edges, file, indent=4)  # indent=4 makes the output more readable
             
         return nodes + edges

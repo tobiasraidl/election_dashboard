@@ -11,6 +11,7 @@ def register_account_network_callbacks(df, df_base_posts, config, account_graph)
         Output("account-graph", "elements"),
         [
             State("min-same-imgs-shared-slider", "value"),
+            State("min-account-connections-slider", "value"),
             State("party-filter-checklist-col1", "value"),
             State("party-filter-checklist-col2", "value"),
             State("highlight-cross-party-connections-toogle", "value"),
@@ -20,9 +21,10 @@ def register_account_network_callbacks(df, df_base_posts, config, account_graph)
         Input("apply-button", "n_clicks"),
         prevent_initial_call=True
     )
-    def update_elements(min_same_imgs_shared, selected_parties_1, selected_parties_2, cross_party_connections_toggle, scaling_ratio, iterations, n_clicks):
+    def update_elements(min_same_imgs_shared, min_account_connections, selected_parties_1, selected_parties_2, cross_party_connections_toggle, scaling_ratio, iterations, n_clicks):
         elements = account_graph.gen_cytoscape_elements(
             min_same_imgs_shared = min_same_imgs_shared, 
+            min_account_connections = min_account_connections,
             parties = selected_parties_1 + selected_parties_2,
             scaling_ratio = scaling_ratio,
             iterations = iterations,
@@ -54,7 +56,7 @@ def register_account_network_callbacks(df, df_base_posts, config, account_graph)
             html.P([f"Images posted: ", html.Strong(account_num_posts)]),
             html.P([f"Num. accounts that shared same images: ", html.Strong(account_num_neighbors)]),
             dbc.FormText(
-                "Account details are not influenced by the graph view settings above.",
+                "Account details are not influenced by the graph view settings.",
                 style={"fontSize": "0.9rem", "color": "#A0A0A0"}
             ),
         ])
