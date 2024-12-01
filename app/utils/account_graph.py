@@ -179,8 +179,8 @@ class AccountGraph:
                         }
                     })
 
-        # if save_as_initial_element_list:
-        #     with open(element_list_path, 'w') as file:
-        #         json.dump(nodes + edges, file, indent=4)  # indent=4 makes the output more readable
+        if save_as_initial_element_list:
+            with open(element_list_path, 'w') as file:
+                json.dump(nodes + edges, file, indent=4)  # indent=4 makes the output more readable
             
         return nodes + edges

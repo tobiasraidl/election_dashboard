@@ -17,6 +17,7 @@ def Navbar():
                         # Dropdown for "About"
                         dbc.DropdownMenu(
                             [
+                                dbc.DropdownMenuItem("About the Project", href="https://polarvis.github.io/dashboard/#the-polarvis-election-dashboard", target="_blank"),
                                 dbc.DropdownMenuItem("Author", href="https://www.linkedin.com/in/tobias-raidl/", target="_blank"),
                                 dbc.DropdownMenuItem("PolarVis", href="https://polarvis.github.io/", target="_blank"),
                             ],
