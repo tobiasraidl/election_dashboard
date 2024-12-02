@@ -9,8 +9,6 @@ This dashboard serves as a tool to visually explore social media dynamics during
 3. Run the docker iamge as a container: In the directory with the Dockerfile run `docker run -d --name election-dashboard-container -p 8050:8050 election-dashboard`
 4. Open the app inside a browser via `http://localhost:8050/`
 
-*Contact me for the images at e11717659@student.tuwien.ac.at
-
 ### Links
 [Detailed description of the dashboard](https://polarvis.github.io/dashboard/#the-polarvis-election-dashboard)  
 [POLARVIS](https://polarvis.github.io/)
