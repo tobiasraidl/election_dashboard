@@ -3,7 +3,7 @@ This dashboard was developed as part of the  the PolarVis project to visually ex
 
 ![example_image](https://github.com/user-attachments/assets/783cb032-911e-4f76-8e8d-3ac76a0b3766)
 
-### Employment Setup
+### Employment Setup (images are not publicly available)
 The data is private and cannot be shared.
 1. Put all the images into the app/images/ directory using the following naming convention: `<image_hash>.jpg` *
 2. Build the docker image: In the directory with the Dockerfile run `docker build -t election-dashboard .` (make sure docker is running)
